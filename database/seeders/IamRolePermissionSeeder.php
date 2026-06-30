@@ -52,6 +52,10 @@ class IamRolePermissionSeeder extends Seeder
             'class_sections.create',
             'class_sections.update',
             'class_sections.delete',
+            'student_enrollments.view',
+            'student_enrollments.create',
+            'student_enrollments.update',
+            'student_enrollments.delete',
         ];
 
         foreach ($permissions as $permission) {

@@ -5,24 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'user_id',
-    'student_no',
-    'roll_no',
-    'institutional_email',
-    'department_id',
+    'student_profile_id',
+    'academic_year_id',
+    'semester_id',
     'program_id',
     'major_id',
-    'academic_year_id',
     'class_section_id',
-    'admission_year',
+    'year_level',
+    'roll_no',
     'status',
+    'enrolled_at',
+    'completed_at',
+    'remarks',
 ])]
-class StudentProfile extends Model
+class StudentEnrollment extends Model
 {
     use LogsActivity;
 
@@ -30,14 +30,19 @@ class StudentProfile extends Model
         'status' => 'active',
     ];
 
-    public function user(): BelongsTo
+    public function studentProfile(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(StudentProfile::class);
     }
 
-    public function department(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function semester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class);
     }
 
     public function program(): BelongsTo
@@ -50,25 +55,15 @@ class StudentProfile extends Model
         return $this->belongsTo(Major::class);
     }
 
-    public function academicYear(): BelongsTo
-    {
-        return $this->belongsTo(AcademicYear::class);
-    }
-
     public function classSection(): BelongsTo
     {
         return $this->belongsTo(ClassSection::class);
     }
 
-    public function studentEnrollments(): HasMany
-    {
-        return $this->hasMany(StudentEnrollment::class);
-    }
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('iam')
+            ->useLogName('sis')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
@@ -80,7 +75,9 @@ class StudentProfile extends Model
     protected function casts(): array
     {
         return [
-            'admission_year' => 'integer',
+            'year_level' => 'integer',
+            'enrolled_at' => 'date',
+            'completed_at' => 'date',
         ];
     }
 }
