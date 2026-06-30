@@ -5,36 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'teacher_profile_id',
+    'exam_term_id',
     'academic_year_id',
     'semester_id',
-    'program_id',
-    'major_id',
     'class_section_id',
-    'curriculum_id',
-    'curriculum_course_id',
+    'teaching_assignment_id',
     'course_id',
-    'status',
+    'teacher_profile_id',
+    'room_id',
+    'exam_date',
     'starts_at',
     'ends_at',
+    'status',
     'remarks',
 ])]
-class TeachingAssignment extends Model
+class ExamSchedule extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'status' => 'draft',
     ];
 
-    public function teacherProfile(): BelongsTo
+    public function examTerm(): BelongsTo
     {
-        return $this->belongsTo(TeacherProfile::class);
+        return $this->belongsTo(ExamTerm::class);
     }
 
     public function academicYear(): BelongsTo
@@ -47,29 +46,14 @@ class TeachingAssignment extends Model
         return $this->belongsTo(Semester::class);
     }
 
-    public function program(): BelongsTo
-    {
-        return $this->belongsTo(Program::class);
-    }
-
-    public function major(): BelongsTo
-    {
-        return $this->belongsTo(Major::class);
-    }
-
     public function classSection(): BelongsTo
     {
         return $this->belongsTo(ClassSection::class);
     }
 
-    public function curriculum(): BelongsTo
+    public function teachingAssignment(): BelongsTo
     {
-        return $this->belongsTo(Curriculum::class);
-    }
-
-    public function curriculumCourse(): BelongsTo
-    {
-        return $this->belongsTo(CurriculumCourse::class);
+        return $this->belongsTo(TeachingAssignment::class);
     }
 
     public function course(): BelongsTo
@@ -77,19 +61,14 @@ class TeachingAssignment extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function timetableSlots(): HasMany
+    public function teacherProfile(): BelongsTo
     {
-        return $this->hasMany(TimetableSlot::class);
+        return $this->belongsTo(TeacherProfile::class);
     }
 
-    public function attendanceSessions(): HasMany
+    public function room(): BelongsTo
     {
-        return $this->hasMany(AttendanceSession::class);
-    }
-
-    public function examSchedules(): HasMany
-    {
-        return $this->hasMany(ExamSchedule::class);
+        return $this->belongsTo(Room::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -107,8 +86,7 @@ class TeachingAssignment extends Model
     protected function casts(): array
     {
         return [
-            'starts_at' => 'date',
-            'ends_at' => 'date',
+            'exam_date' => 'date',
         ];
     }
 }

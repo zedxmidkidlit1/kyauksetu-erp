@@ -10,34 +10,35 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'building_id',
+    'academic_year_id',
+    'semester_id',
     'name',
-    'code',
-    'room_type',
-    'capacity',
-    'floor',
+    'exam_type',
+    'starts_at',
+    'ends_at',
     'status',
     'remarks',
 ])]
-class Room extends Model
+class ExamTerm extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'exam_type' => 'midterm',
+        'status' => 'draft',
     ];
 
-    public function building(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(AcademicYear::class);
     }
 
-    public function timetableSlots(): HasMany
+    public function semester(): BelongsTo
     {
-        return $this->hasMany(TimetableSlot::class);
+        return $this->belongsTo(Semester::class);
     }
 
-    public function examSchedules(): HasMany
+    public function schedules(): HasMany
     {
         return $this->hasMany(ExamSchedule::class);
     }
@@ -45,7 +46,7 @@ class Room extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('facilities')
+            ->useLogName('academic')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
@@ -57,7 +58,8 @@ class Room extends Model
     protected function casts(): array
     {
         return [
-            'capacity' => 'integer',
+            'starts_at' => 'date',
+            'ends_at' => 'date',
         ];
     }
 }

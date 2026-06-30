@@ -36,6 +36,11 @@ class Course extends Model
         return $this->hasMany(TeachingAssignment::class);
     }
 
+    public function examSchedules(): HasMany
+    {
+        return $this->hasMany(ExamSchedule::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

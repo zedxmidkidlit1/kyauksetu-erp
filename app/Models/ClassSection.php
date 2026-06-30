@@ -38,6 +38,11 @@ class ClassSection extends Model
         return $this->hasMany(Timetable::class);
     }
 
+    public function examSchedules(): HasMany
+    {
+        return $this->hasMany(ExamSchedule::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
