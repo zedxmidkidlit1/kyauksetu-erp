@@ -82,6 +82,11 @@ class TeachingAssignment extends Model
         return $this->hasMany(TimetableSlot::class);
     }
 
+    public function attendanceSessions(): HasMany
+    {
+        return $this->hasMany(AttendanceSession::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

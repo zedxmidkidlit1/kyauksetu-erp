@@ -10,35 +10,51 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'timetable_id',
+    'academic_year_id',
+    'semester_id',
+    'class_section_id',
     'teaching_assignment_id',
+    'timetable_slot_id',
     'course_id',
     'teacher_profile_id',
     'room_id',
-    'day_of_week',
+    'session_date',
     'starts_at',
     'ends_at',
-    'slot_type',
     'status',
     'remarks',
 ])]
-class TimetableSlot extends Model
+class AttendanceSession extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'slot_type' => 'lecture',
-        'status' => 'scheduled',
+        'status' => 'draft',
     ];
 
-    public function timetable(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(Timetable::class);
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function semester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function classSection(): BelongsTo
+    {
+        return $this->belongsTo(ClassSection::class);
     }
 
     public function teachingAssignment(): BelongsTo
     {
         return $this->belongsTo(TeachingAssignment::class);
+    }
+
+    public function timetableSlot(): BelongsTo
+    {
+        return $this->belongsTo(TimetableSlot::class);
     }
 
     public function course(): BelongsTo
@@ -56,9 +72,9 @@ class TimetableSlot extends Model
         return $this->belongsTo(Room::class);
     }
 
-    public function attendanceSessions(): HasMany
+    public function records(): HasMany
     {
-        return $this->hasMany(AttendanceSession::class);
+        return $this->hasMany(AttendanceRecord::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -68,5 +84,15 @@ class TimetableSlot extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'session_date' => 'date',
+        ];
     }
 }
