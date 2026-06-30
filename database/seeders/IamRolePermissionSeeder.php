@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Permission;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;
 
 class IamRolePermissionSeeder extends Seeder
@@ -32,6 +32,26 @@ class IamRolePermissionSeeder extends Seeder
             'teachers.create',
             'teachers.update',
             'kai.chat',
+            'academic_years.view',
+            'academic_years.create',
+            'academic_years.update',
+            'academic_years.delete',
+            'semesters.view',
+            'semesters.create',
+            'semesters.update',
+            'semesters.delete',
+            'programs.view',
+            'programs.create',
+            'programs.update',
+            'programs.delete',
+            'majors.view',
+            'majors.create',
+            'majors.update',
+            'majors.delete',
+            'class_sections.view',
+            'class_sections.create',
+            'class_sections.update',
+            'class_sections.delete',
         ];
 
         foreach ($permissions as $permission) {

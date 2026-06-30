@@ -8,35 +8,30 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['code', 'name', 'description', 'is_active'])]
-class Department extends Model
+#[Fillable(['name', 'start_date', 'end_date', 'is_current', 'status'])]
+class AcademicYear extends Model
 {
     use LogsActivity;
 
-    public function studentProfiles(): HasMany
+    protected $attributes = [
+        'is_current' => false,
+        'status' => 'active',
+    ];
+
+    public function semesters(): HasMany
     {
-        return $this->hasMany(StudentProfile::class);
+        return $this->hasMany(Semester::class);
     }
 
-    public function teacherProfiles(): HasMany
+    public function classSections(): HasMany
     {
-        return $this->hasMany(TeacherProfile::class);
-    }
-
-    public function staffProfiles(): HasMany
-    {
-        return $this->hasMany(StaffProfile::class);
-    }
-
-    public function majors(): HasMany
-    {
-        return $this->hasMany(Major::class);
+        return $this->hasMany(ClassSection::class);
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('iam')
+            ->useLogName('academic')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
@@ -48,7 +43,9 @@ class Department extends Model
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'is_current' => 'boolean',
         ];
     }
 }
