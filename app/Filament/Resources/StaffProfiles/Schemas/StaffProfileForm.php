@@ -14,21 +14,27 @@ class StaffProfileForm
     {
         return $schema
             ->components([
-                Section::make('Staff')
+                Section::make('Staff profile')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Select::make('user_id')
                                     ->relationship('user', 'email')
                                     ->searchable()
-                                    ->preload(),
+                                    ->preload()
+                                    ->unique(ignoreRecord: true),
+                                TextInput::make('staff_no')
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
+                                TextInput::make('institutional_email')
+                                    ->email()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
                                 Select::make('department_id')
                                     ->relationship('department', 'name')
                                     ->searchable()
                                     ->preload(),
-                                TextInput::make('employee_number')
-                                    ->required()
-                                    ->unique(ignoreRecord: true)
+                                TextInput::make('position')
                                     ->maxLength(255),
                                 Select::make('status')
                                     ->options([
@@ -37,17 +43,6 @@ class StaffProfileForm
                                     ])
                                     ->default('active')
                                     ->required(),
-                                TextInput::make('first_name')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('last_name')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('position')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('staff_type')
-                                    ->maxLength(255),
                             ]),
                     ])
                     ->columnSpanFull(),

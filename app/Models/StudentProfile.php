@@ -10,14 +10,16 @@ use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
     'user_id',
+    'student_no',
+    'roll_no',
+    'institutional_email',
     'department_id',
-    'student_number',
-    'first_name',
-    'last_name',
-    'date_of_birth',
-    'phone',
+    'program_id',
+    'major_id',
+    'academic_year_id',
+    'class_section_id',
+    'admission_year',
     'status',
-    'enrolled_at',
 ])]
 class StudentProfile extends Model
 {
@@ -37,6 +39,26 @@ class StudentProfile extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function major(): BelongsTo
+    {
+        return $this->belongsTo(Major::class);
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function classSection(): BelongsTo
+    {
+        return $this->belongsTo(ClassSection::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -52,8 +74,7 @@ class StudentProfile extends Model
     protected function casts(): array
     {
         return [
-            'date_of_birth' => 'date',
-            'enrolled_at' => 'date',
+            'admission_year' => 'integer',
         ];
     }
 }

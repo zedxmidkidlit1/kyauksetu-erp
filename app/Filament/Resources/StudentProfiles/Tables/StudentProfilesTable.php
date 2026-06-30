@@ -15,14 +15,25 @@ class StudentProfilesTable
     {
         return $table
             ->columns([
-                TextColumn::make('student_number')
+                TextColumn::make('student_no')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('first_name')
-                    ->searchable(),
-                TextColumn::make('last_name')
+                TextColumn::make('roll_no')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('institutional_email')
                     ->searchable(),
                 TextColumn::make('department.name')
+                    ->sortable(),
+                TextColumn::make('program.name')
+                    ->sortable(),
+                TextColumn::make('major.name')
+                    ->sortable(),
+                TextColumn::make('academicYear.name')
+                    ->sortable(),
+                TextColumn::make('classSection.name')
+                    ->sortable(),
+                TextColumn::make('admission_year')
                     ->sortable(),
                 TextColumn::make('user.email')
                     ->label('Login email')
@@ -33,7 +44,25 @@ class StudentProfilesTable
             ])
             ->filters([
                 SelectFilter::make('department')
-                    ->relationship('department', 'name'),
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('program')
+                    ->relationship('program', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('major')
+                    ->relationship('major', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('academicYear')
+                    ->relationship('academicYear', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('classSection')
+                    ->relationship('classSection', 'name')
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('status')
                     ->options([
                         'active' => 'Active',

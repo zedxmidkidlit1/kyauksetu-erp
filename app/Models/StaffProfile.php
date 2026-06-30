@@ -10,12 +10,10 @@ use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
     'user_id',
+    'staff_no',
+    'institutional_email',
     'department_id',
-    'employee_number',
-    'first_name',
-    'last_name',
     'position',
-    'staff_type',
     'status',
 ])]
 class StaffProfile extends Model

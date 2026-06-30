@@ -10,12 +10,11 @@ use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
     'user_id',
+    'staff_no',
+    'institutional_email',
     'department_id',
-    'employee_number',
-    'first_name',
-    'last_name',
-    'title',
-    'hire_date',
+    'position',
+    'rank',
     'status',
 ])]
 class TeacherProfile extends Model
@@ -43,15 +42,5 @@ class TeacherProfile extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'hire_date' => 'date',
-        ];
     }
 }

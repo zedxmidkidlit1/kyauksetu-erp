@@ -15,14 +15,18 @@ class TeacherProfilesTable
     {
         return $table
             ->columns([
-                TextColumn::make('employee_number')
+                TextColumn::make('staff_no')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('first_name')
-                    ->searchable(),
-                TextColumn::make('last_name')
+                TextColumn::make('institutional_email')
                     ->searchable(),
                 TextColumn::make('department.name')
+                    ->sortable(),
+                TextColumn::make('position')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('rank')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('user.email')
                     ->label('Login email')
@@ -33,7 +37,9 @@ class TeacherProfilesTable
             ])
             ->filters([
                 SelectFilter::make('department')
-                    ->relationship('department', 'name'),
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('status')
                     ->options([
                         'active' => 'Active',
