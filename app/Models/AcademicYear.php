@@ -28,6 +28,11 @@ class AcademicYear extends Model
         return $this->hasMany(ClassSection::class);
     }
 
+    public function curriculums(): HasMany
+    {
+        return $this->hasMany(Curriculum::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

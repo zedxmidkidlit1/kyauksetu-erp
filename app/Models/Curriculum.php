@@ -9,8 +9,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['academic_year_id', 'name', 'start_date', 'end_date', 'status'])]
-class Semester extends Model
+#[Fillable([
+    'program_id',
+    'major_id',
+    'academic_year_id',
+    'semester_id',
+    'name',
+    'year_level',
+    'status',
+    'remarks',
+])]
+class Curriculum extends Model
 {
     use LogsActivity;
 
@@ -18,14 +27,29 @@ class Semester extends Model
         'status' => 'active',
     ];
 
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function major(): BelongsTo
+    {
+        return $this->belongsTo(Major::class);
+    }
+
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
     }
 
-    public function curriculums(): HasMany
+    public function semester(): BelongsTo
     {
-        return $this->hasMany(Curriculum::class);
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function curriculumCourses(): HasMany
+    {
+        return $this->hasMany(CurriculumCourse::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -43,8 +67,7 @@ class Semester extends Model
     protected function casts(): array
     {
         return [
-            'start_date' => 'date',
-            'end_date' => 'date',
+            'year_level' => 'integer',
         ];
     }
 }

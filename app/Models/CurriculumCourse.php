@@ -5,27 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['academic_year_id', 'name', 'start_date', 'end_date', 'status'])]
-class Semester extends Model
+#[Fillable([
+    'curriculum_id',
+    'course_id',
+    'is_required',
+    'sort_order',
+    'remarks',
+])]
+class CurriculumCourse extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'is_required' => true,
     ];
 
-    public function academicYear(): BelongsTo
+    public function curriculum(): BelongsTo
     {
-        return $this->belongsTo(AcademicYear::class);
+        return $this->belongsTo(Curriculum::class);
     }
 
-    public function curriculums(): HasMany
+    public function course(): BelongsTo
     {
-        return $this->hasMany(Curriculum::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -43,8 +48,8 @@ class Semester extends Model
     protected function casts(): array
     {
         return [
-            'start_date' => 'date',
-            'end_date' => 'date',
+            'is_required' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 }

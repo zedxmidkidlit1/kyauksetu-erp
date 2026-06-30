@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -24,6 +25,11 @@ class Course extends Model
     protected $attributes = [
         'status' => 'active',
     ];
+
+    public function curriculumCourses(): HasMany
+    {
+        return $this->hasMany(CurriculumCourse::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
