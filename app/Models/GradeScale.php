@@ -9,13 +9,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['academic_year_id', 'name', 'start_date', 'end_date', 'status'])]
-class Semester extends Model
+#[Fillable([
+    'academic_year_id',
+    'program_id',
+    'major_id',
+    'name',
+    'status',
+    'remarks',
+])]
+class GradeScale extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'status' => 'draft',
     ];
 
     public function academicYear(): BelongsTo
@@ -23,14 +30,19 @@ class Semester extends Model
         return $this->belongsTo(AcademicYear::class);
     }
 
-    public function curriculums(): HasMany
+    public function program(): BelongsTo
     {
-        return $this->hasMany(Curriculum::class);
+        return $this->belongsTo(Program::class);
     }
 
-    public function studentCourseResults(): HasMany
+    public function major(): BelongsTo
     {
-        return $this->hasMany(StudentCourseResult::class);
+        return $this->belongsTo(Major::class);
+    }
+
+    public function rules(): HasMany
+    {
+        return $this->hasMany(GradeScaleRule::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -40,16 +52,5 @@ class Semester extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'start_date' => 'date',
-            'end_date' => 'date',
-        ];
     }
 }

@@ -33,6 +33,11 @@ class AcademicYear extends Model
         return $this->hasMany(Curriculum::class);
     }
 
+    public function studentCourseResults(): HasMany
+    {
+        return $this->hasMany(StudentCourseResult::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

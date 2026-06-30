@@ -5,32 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['academic_year_id', 'name', 'start_date', 'end_date', 'status'])]
-class Semester extends Model
+#[Fillable([
+    'grade_scale_id',
+    'grade',
+    'min_marks',
+    'max_marks',
+    'grade_point',
+    'is_passing',
+    'remarks',
+])]
+class GradeScaleRule extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'is_passing' => true,
     ];
 
-    public function academicYear(): BelongsTo
+    public function gradeScale(): BelongsTo
     {
-        return $this->belongsTo(AcademicYear::class);
-    }
-
-    public function curriculums(): HasMany
-    {
-        return $this->hasMany(Curriculum::class);
-    }
-
-    public function studentCourseResults(): HasMany
-    {
-        return $this->hasMany(StudentCourseResult::class);
+        return $this->belongsTo(GradeScale::class);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -48,8 +45,10 @@ class Semester extends Model
     protected function casts(): array
     {
         return [
-            'start_date' => 'date',
-            'end_date' => 'date',
+            'min_marks' => 'decimal:2',
+            'max_marks' => 'decimal:2',
+            'grade_point' => 'decimal:2',
+            'is_passing' => 'boolean',
         ];
     }
 }
