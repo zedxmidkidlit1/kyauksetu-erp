@@ -51,6 +51,11 @@ class Course extends Model
         return $this->hasMany(StudentCourseResult::class);
     }
 
+    public function resultBatchItems(): HasMany
+    {
+        return $this->hasMany(ResultBatchItem::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
