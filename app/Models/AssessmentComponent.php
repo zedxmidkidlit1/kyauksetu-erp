@@ -10,31 +10,27 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'student_profile_id',
     'academic_year_id',
     'semester_id',
-    'program_id',
-    'major_id',
     'class_section_id',
-    'year_level',
-    'roll_no',
+    'course_id',
+    'exam_term_id',
+    'exam_schedule_id',
+    'name',
+    'component_type',
+    'max_marks',
+    'weight',
     'status',
-    'enrolled_at',
-    'completed_at',
     'remarks',
 ])]
-class StudentEnrollment extends Model
+class AssessmentComponent extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'component_type' => 'assignment',
+        'status' => 'draft',
     ];
-
-    public function studentProfile(): BelongsTo
-    {
-        return $this->belongsTo(StudentProfile::class);
-    }
 
     public function academicYear(): BelongsTo
     {
@@ -46,24 +42,24 @@ class StudentEnrollment extends Model
         return $this->belongsTo(Semester::class);
     }
 
-    public function program(): BelongsTo
-    {
-        return $this->belongsTo(Program::class);
-    }
-
-    public function major(): BelongsTo
-    {
-        return $this->belongsTo(Major::class);
-    }
-
     public function classSection(): BelongsTo
     {
         return $this->belongsTo(ClassSection::class);
     }
 
-    public function attendanceRecords(): HasMany
+    public function course(): BelongsTo
     {
-        return $this->hasMany(AttendanceRecord::class);
+        return $this->belongsTo(Course::class);
+    }
+
+    public function examTerm(): BelongsTo
+    {
+        return $this->belongsTo(ExamTerm::class);
+    }
+
+    public function examSchedule(): BelongsTo
+    {
+        return $this->belongsTo(ExamSchedule::class);
     }
 
     public function studentMarks(): HasMany
@@ -74,7 +70,7 @@ class StudentEnrollment extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('sis')
+            ->useLogName('academic')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
@@ -86,9 +82,8 @@ class StudentEnrollment extends Model
     protected function casts(): array
     {
         return [
-            'year_level' => 'integer',
-            'enrolled_at' => 'date',
-            'completed_at' => 'date',
+            'max_marks' => 'decimal:2',
+            'weight' => 'decimal:2',
         ];
     }
 }

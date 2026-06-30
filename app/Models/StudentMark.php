@@ -5,47 +5,46 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'academic_year_id',
-    'semester_id',
-    'name',
-    'exam_type',
-    'starts_at',
-    'ends_at',
+    'assessment_component_id',
+    'student_enrollment_id',
+    'marks_obtained',
     'status',
+    'entered_by',
+    'entered_at',
+    'approved_by',
+    'approved_at',
     'remarks',
 ])]
-class ExamTerm extends Model
+class StudentMark extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'exam_type' => 'midterm',
         'status' => 'draft',
     ];
 
-    public function academicYear(): BelongsTo
+    public function assessmentComponent(): BelongsTo
     {
-        return $this->belongsTo(AcademicYear::class);
+        return $this->belongsTo(AssessmentComponent::class);
     }
 
-    public function semester(): BelongsTo
+    public function studentEnrollment(): BelongsTo
     {
-        return $this->belongsTo(Semester::class);
+        return $this->belongsTo(StudentEnrollment::class);
     }
 
-    public function schedules(): HasMany
+    public function enteredBy(): BelongsTo
     {
-        return $this->hasMany(ExamSchedule::class);
+        return $this->belongsTo(User::class, 'entered_by');
     }
 
-    public function assessmentComponents(): HasMany
+    public function approvedBy(): BelongsTo
     {
-        return $this->hasMany(AssessmentComponent::class);
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -63,8 +62,9 @@ class ExamTerm extends Model
     protected function casts(): array
     {
         return [
-            'starts_at' => 'date',
-            'ends_at' => 'date',
+            'marks_obtained' => 'decimal:2',
+            'entered_at' => 'datetime',
+            'approved_at' => 'datetime',
         ];
     }
 }

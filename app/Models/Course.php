@@ -41,6 +41,11 @@ class Course extends Model
         return $this->hasMany(ExamSchedule::class);
     }
 
+    public function assessmentComponents(): HasMany
+    {
+        return $this->hasMany(AssessmentComponent::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
