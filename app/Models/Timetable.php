@@ -10,16 +10,18 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
-    'building_id',
+    'academic_year_id',
+    'semester_id',
+    'program_id',
+    'major_id',
+    'class_section_id',
     'name',
-    'code',
-    'room_type',
-    'capacity',
-    'floor',
+    'effective_from',
+    'effective_until',
     'status',
     'remarks',
 ])]
-class Room extends Model
+class Timetable extends Model
 {
     use LogsActivity;
 
@@ -27,12 +29,32 @@ class Room extends Model
         'status' => 'active',
     ];
 
-    public function building(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(AcademicYear::class);
     }
 
-    public function timetableSlots(): HasMany
+    public function semester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function major(): BelongsTo
+    {
+        return $this->belongsTo(Major::class);
+    }
+
+    public function classSection(): BelongsTo
+    {
+        return $this->belongsTo(ClassSection::class);
+    }
+
+    public function slots(): HasMany
     {
         return $this->hasMany(TimetableSlot::class);
     }
@@ -40,7 +62,7 @@ class Room extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('facilities')
+            ->useLogName('academic')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
@@ -52,7 +74,8 @@ class Room extends Model
     protected function casts(): array
     {
         return [
-            'capacity' => 'integer',
+            'effective_from' => 'date',
+            'effective_until' => 'date',
         ];
     }
 }
