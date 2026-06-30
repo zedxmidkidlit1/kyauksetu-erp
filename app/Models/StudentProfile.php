@@ -65,6 +65,11 @@ class StudentProfile extends Model
         return $this->hasMany(StudentEnrollment::class);
     }
 
+    public function studentStatusHistories(): HasMany
+    {
+        return $this->hasMany(StudentStatusHistory::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
