@@ -23,6 +23,14 @@ class BuildingResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Campus / Facilities';
 
+    protected static ?string $navigationLabel = 'Buildings';
+
+    protected static ?string $modelLabel = 'Building';
+
+    protected static ?string $pluralModelLabel = 'Buildings';
+
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return BuildingForm::configure($schema);

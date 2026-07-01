@@ -24,6 +24,14 @@ class BookCopyResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Library';
 
+    protected static ?string $navigationLabel = 'Book Copies';
+
+    protected static ?string $modelLabel = 'Book Copy';
+
+    protected static ?string $pluralModelLabel = 'Book Copies';
+
+    protected static ?int $navigationSort = 30;
+
     public static function form(Schema $schema): Schema
     {
         return BookCopyForm::configure($schema);

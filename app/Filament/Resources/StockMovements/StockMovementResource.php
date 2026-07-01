@@ -24,6 +24,14 @@ class StockMovementResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
+    protected static ?string $navigationLabel = 'Stock Movements';
+
+    protected static ?string $modelLabel = 'Stock Movement';
+
+    protected static ?string $pluralModelLabel = 'Stock Movements';
+
+    protected static ?int $navigationSort = 50;
+
     public static function form(Schema $schema): Schema
     {
         return StockMovementForm::configure($schema);

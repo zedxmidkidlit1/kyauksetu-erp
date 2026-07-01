@@ -23,6 +23,14 @@ class StockItemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
+    protected static ?string $navigationLabel = 'Stock Items';
+
+    protected static ?string $modelLabel = 'Stock Item';
+
+    protected static ?string $pluralModelLabel = 'Stock Items';
+
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return StockItemForm::configure($schema);

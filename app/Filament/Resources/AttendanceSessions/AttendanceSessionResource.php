@@ -22,7 +22,15 @@ class AttendanceSessionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Attendance';
+
+    protected static ?string $navigationLabel = 'Attendance Sessions';
+
+    protected static ?string $modelLabel = 'Attendance Session';
+
+    protected static ?string $pluralModelLabel = 'Attendance Sessions';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'session_date';
 

@@ -24,6 +24,14 @@ class TimetableResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
 
+    protected static ?string $navigationLabel = 'Timetables';
+
+    protected static ?string $modelLabel = 'Timetable';
+
+    protected static ?string $pluralModelLabel = 'Timetables';
+
+    protected static ?int $navigationSort = 40;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema

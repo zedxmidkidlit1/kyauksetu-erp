@@ -24,6 +24,14 @@ class LibraryLoanResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Library';
 
+    protected static ?string $navigationLabel = 'Library Loans';
+
+    protected static ?string $modelLabel = 'Library Loan';
+
+    protected static ?string $pluralModelLabel = 'Library Loans';
+
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return LibraryLoanForm::configure($schema);

@@ -20,9 +20,17 @@ class GradeScaleResource extends Resource
 {
     protected static ?string $model = GradeScale::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::ClipboardDocumentList;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Exams & Results';
+
+    protected static ?string $navigationLabel = 'Grade Scales';
+
+    protected static ?string $modelLabel = 'Grade Scale';
+
+    protected static ?string $pluralModelLabel = 'Grade Scales';
+
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $recordTitleAttribute = 'name';
 

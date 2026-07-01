@@ -24,6 +24,14 @@ class HostelRoomResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Hostel';
 
+    protected static ?string $navigationLabel = 'Hostel Rooms';
+
+    protected static ?string $modelLabel = 'Hostel Room';
+
+    protected static ?string $pluralModelLabel = 'Hostel Rooms';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return HostelRoomForm::configure($schema);

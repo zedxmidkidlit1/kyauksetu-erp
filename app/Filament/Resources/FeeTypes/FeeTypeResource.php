@@ -19,9 +19,17 @@ class FeeTypeResource extends Resource
 {
     protected static ?string $model = FeeType::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     protected static string|UnitEnum|null $navigationGroup = 'Finance';
+
+    protected static ?string $navigationLabel = 'Fee Types';
+
+    protected static ?string $modelLabel = 'Fee Type';
+
+    protected static ?string $pluralModelLabel = 'Fee Types';
+
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

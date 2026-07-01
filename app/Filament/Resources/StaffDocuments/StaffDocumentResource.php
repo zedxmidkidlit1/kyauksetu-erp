@@ -24,6 +24,14 @@ class StaffDocumentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'HR';
 
+    protected static ?string $navigationLabel = 'Staff Documents';
+
+    protected static ?string $modelLabel = 'Staff Document';
+
+    protected static ?string $pluralModelLabel = 'Staff Documents';
+
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return StaffDocumentForm::configure($schema);

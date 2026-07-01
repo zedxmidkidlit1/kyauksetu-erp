@@ -23,6 +23,14 @@ class StudentEnrollmentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'SIS';
 
+    protected static ?string $navigationLabel = 'Student Enrollments';
+
+    protected static ?string $modelLabel = 'Student Enrollment';
+
+    protected static ?string $pluralModelLabel = 'Student Enrollments';
+
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return StudentEnrollmentForm::configure($schema);

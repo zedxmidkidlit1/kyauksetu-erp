@@ -19,9 +19,17 @@ class TeacherProfileResource extends Resource
 {
     protected static ?string $model = TeacherProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Profiles';
+    protected static string|UnitEnum|null $navigationGroup = 'People & Profiles';
+
+    protected static ?string $navigationLabel = 'Teachers';
+
+    protected static ?string $modelLabel = 'Teacher Profile';
+
+    protected static ?string $pluralModelLabel = 'Teacher Profiles';
+
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

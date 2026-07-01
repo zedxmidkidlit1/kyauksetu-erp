@@ -23,6 +23,14 @@ class SemesterResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Structure';
 
+    protected static ?string $navigationLabel = 'Semesters';
+
+    protected static ?string $modelLabel = 'Semester';
+
+    protected static ?string $pluralModelLabel = 'Semesters';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return SemesterForm::configure($schema);

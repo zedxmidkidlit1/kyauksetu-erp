@@ -22,7 +22,15 @@ class AssessmentComponentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Exams & Results';
+
+    protected static ?string $navigationLabel = 'Assessment Components';
+
+    protected static ?string $modelLabel = 'Assessment Component';
+
+    protected static ?string $pluralModelLabel = 'Assessment Components';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $recordTitleAttribute = 'name';
 

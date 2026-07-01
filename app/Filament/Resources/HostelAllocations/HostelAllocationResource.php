@@ -24,6 +24,14 @@ class HostelAllocationResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Hostel';
 
+    protected static ?string $navigationLabel = 'Hostel Allocations';
+
+    protected static ?string $modelLabel = 'Hostel Allocation';
+
+    protected static ?string $pluralModelLabel = 'Hostel Allocations';
+
+    protected static ?int $navigationSort = 40;
+
     public static function form(Schema $schema): Schema
     {
         return HostelAllocationForm::configure($schema);

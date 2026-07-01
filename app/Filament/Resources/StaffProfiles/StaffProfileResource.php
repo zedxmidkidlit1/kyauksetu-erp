@@ -19,9 +19,17 @@ class StaffProfileResource extends Resource
 {
     protected static ?string $model = StaffProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Briefcase;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Profiles';
+    protected static string|UnitEnum|null $navigationGroup = 'People & Profiles';
+
+    protected static ?string $navigationLabel = 'Staff Profiles';
+
+    protected static ?string $modelLabel = 'Staff Profile';
+
+    protected static ?string $pluralModelLabel = 'Staff Profiles';
+
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

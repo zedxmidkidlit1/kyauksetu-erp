@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -30,6 +31,38 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Identity & Access'),
+                NavigationGroup::make()
+                    ->label('People & Profiles'),
+                NavigationGroup::make()
+                    ->label('Organization'),
+                NavigationGroup::make()
+                    ->label('Campus / Facilities'),
+                NavigationGroup::make()
+                    ->label('Academic Structure'),
+                NavigationGroup::make()
+                    ->label('SIS'),
+                NavigationGroup::make()
+                    ->label('Academic Operations'),
+                NavigationGroup::make()
+                    ->label('Attendance'),
+                NavigationGroup::make()
+                    ->label('Exams & Results'),
+                NavigationGroup::make()
+                    ->label('Communication'),
+                NavigationGroup::make()
+                    ->label('Library'),
+                NavigationGroup::make()
+                    ->label('Hostel'),
+                NavigationGroup::make()
+                    ->label('HR'),
+                NavigationGroup::make()
+                    ->label('Finance'),
+                NavigationGroup::make()
+                    ->label('Inventory'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

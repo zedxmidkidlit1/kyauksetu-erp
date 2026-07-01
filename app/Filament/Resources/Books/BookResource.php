@@ -24,6 +24,14 @@ class BookResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Library';
 
+    protected static ?string $navigationLabel = 'Books';
+
+    protected static ?string $modelLabel = 'Book';
+
+    protected static ?string $pluralModelLabel = 'Books';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return BookForm::configure($schema);

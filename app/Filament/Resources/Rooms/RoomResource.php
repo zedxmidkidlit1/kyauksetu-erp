@@ -23,6 +23,14 @@ class RoomResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Campus / Facilities';
 
+    protected static ?string $navigationLabel = 'Rooms';
+
+    protected static ?string $modelLabel = 'Room';
+
+    protected static ?string $pluralModelLabel = 'Rooms';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return RoomForm::configure($schema);

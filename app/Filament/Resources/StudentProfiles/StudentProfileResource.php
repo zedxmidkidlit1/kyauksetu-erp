@@ -19,9 +19,17 @@ class StudentProfileResource extends Resource
 {
     protected static ?string $model = StudentProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Profiles';
+    protected static string|UnitEnum|null $navigationGroup = 'People & Profiles';
+
+    protected static ?string $navigationLabel = 'Students';
+
+    protected static ?string $modelLabel = 'Student Profile';
+
+    protected static ?string $pluralModelLabel = 'Student Profiles';
+
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

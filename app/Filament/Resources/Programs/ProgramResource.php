@@ -23,6 +23,14 @@ class ProgramResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Structure';
 
+    protected static ?string $navigationLabel = 'Programs';
+
+    protected static ?string $modelLabel = 'Program';
+
+    protected static ?string $pluralModelLabel = 'Programs';
+
+    protected static ?int $navigationSort = 30;
+
     public static function form(Schema $schema): Schema
     {
         return ProgramForm::configure($schema);

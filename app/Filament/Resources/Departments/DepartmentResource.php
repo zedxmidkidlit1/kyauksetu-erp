@@ -23,6 +23,14 @@ class DepartmentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Organization';
 
+    protected static ?string $navigationLabel = 'Departments';
+
+    protected static ?string $modelLabel = 'Department';
+
+    protected static ?string $pluralModelLabel = 'Departments';
+
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return DepartmentForm::configure($schema);

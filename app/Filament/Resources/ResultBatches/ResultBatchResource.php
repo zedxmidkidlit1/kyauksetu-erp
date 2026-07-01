@@ -22,7 +22,15 @@ class ResultBatchResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Exams & Results';
+
+    protected static ?string $navigationLabel = 'Result Batches';
+
+    protected static ?string $modelLabel = 'Result Batch';
+
+    protected static ?string $pluralModelLabel = 'Result Batches';
+
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $recordTitleAttribute = 'name';
 

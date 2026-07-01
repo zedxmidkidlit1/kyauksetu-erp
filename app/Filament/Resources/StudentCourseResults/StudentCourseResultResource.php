@@ -21,7 +21,15 @@ class StudentCourseResultResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Exams & Results';
+
+    protected static ?string $navigationLabel = 'Course Results';
+
+    protected static ?string $modelLabel = 'Student Course Result';
+
+    protected static ?string $pluralModelLabel = 'Student Course Results';
+
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $recordTitleAttribute = 'id';
 

@@ -24,6 +24,14 @@ class StaffLeaveRequestResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'HR';
 
+    protected static ?string $navigationLabel = 'Leave Requests';
+
+    protected static ?string $modelLabel = 'Staff Leave Request';
+
+    protected static ?string $pluralModelLabel = 'Staff Leave Requests';
+
+    protected static ?int $navigationSort = 30;
+
     public static function form(Schema $schema): Schema
     {
         return StaffLeaveRequestForm::configure($schema);

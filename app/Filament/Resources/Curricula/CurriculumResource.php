@@ -23,6 +23,14 @@ class CurriculumResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
 
+    protected static ?string $navigationLabel = 'Curricula';
+
+    protected static ?string $modelLabel = 'Curriculum';
+
+    protected static ?string $pluralModelLabel = 'Curricula';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return CurriculumForm::configure($schema);

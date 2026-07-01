@@ -19,9 +19,17 @@ class HostelResource extends Resource
 {
     protected static ?string $model = Hostel::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHomeModern;
 
     protected static string|UnitEnum|null $navigationGroup = 'Hostel';
+
+    protected static ?string $navigationLabel = 'Hostels';
+
+    protected static ?string $modelLabel = 'Hostel';
+
+    protected static ?string $pluralModelLabel = 'Hostels';
+
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

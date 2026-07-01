@@ -20,9 +20,17 @@ class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
+
+    protected static ?string $navigationLabel = 'Assets';
+
+    protected static ?string $modelLabel = 'Asset';
+
+    protected static ?string $pluralModelLabel = 'Assets';
+
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

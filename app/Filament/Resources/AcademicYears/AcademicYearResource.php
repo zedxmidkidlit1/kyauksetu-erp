@@ -23,6 +23,14 @@ class AcademicYearResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Structure';
 
+    protected static ?string $navigationLabel = 'Academic Years';
+
+    protected static ?string $modelLabel = 'Academic Year';
+
+    protected static ?string $pluralModelLabel = 'Academic Years';
+
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return AcademicYearForm::configure($schema);

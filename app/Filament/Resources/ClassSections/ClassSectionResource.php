@@ -19,9 +19,17 @@ class ClassSectionResource extends Resource
 {
     protected static ?string $model = ClassSection::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Structure';
+
+    protected static ?string $navigationLabel = 'Class Sections';
+
+    protected static ?string $modelLabel = 'Class Section';
+
+    protected static ?string $pluralModelLabel = 'Class Sections';
+
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

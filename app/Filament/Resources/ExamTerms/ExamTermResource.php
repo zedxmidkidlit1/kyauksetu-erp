@@ -22,7 +22,15 @@ class ExamTermResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Exams & Results';
+
+    protected static ?string $navigationLabel = 'Exam Terms';
+
+    protected static ?string $modelLabel = 'Exam Term';
+
+    protected static ?string $pluralModelLabel = 'Exam Terms';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'name';
 

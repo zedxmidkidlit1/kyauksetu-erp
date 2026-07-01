@@ -24,6 +24,14 @@ class AssetAssignmentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
 
+    protected static ?string $navigationLabel = 'Asset Assignments';
+
+    protected static ?string $modelLabel = 'Asset Assignment';
+
+    protected static ?string $pluralModelLabel = 'Asset Assignments';
+
+    protected static ?int $navigationSort = 30;
+
     public static function form(Schema $schema): Schema
     {
         return AssetAssignmentForm::configure($schema);

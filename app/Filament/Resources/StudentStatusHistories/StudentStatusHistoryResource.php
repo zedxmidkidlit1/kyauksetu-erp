@@ -23,6 +23,14 @@ class StudentStatusHistoryResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'SIS';
 
+    protected static ?string $navigationLabel = 'Status History';
+
+    protected static ?string $modelLabel = 'Student Status History';
+
+    protected static ?string $pluralModelLabel = 'Student Status Histories';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return StudentStatusHistoryForm::configure($schema);

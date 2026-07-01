@@ -23,6 +23,14 @@ class StaffPositionResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'HR';
 
+    protected static ?string $navigationLabel = 'Staff Positions';
+
+    protected static ?string $modelLabel = 'Staff Position';
+
+    protected static ?string $pluralModelLabel = 'Staff Positions';
+
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return StaffPositionForm::configure($schema);

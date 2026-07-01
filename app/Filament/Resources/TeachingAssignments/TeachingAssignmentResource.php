@@ -19,9 +19,17 @@ class TeachingAssignmentResource extends Resource
 {
     protected static ?string $model = TeachingAssignment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static string|UnitEnum|null $navigationGroup = 'Academic Operations';
+
+    protected static ?string $navigationLabel = 'Teaching Assignments';
+
+    protected static ?string $modelLabel = 'Teaching Assignment';
+
+    protected static ?string $pluralModelLabel = 'Teaching Assignments';
+
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

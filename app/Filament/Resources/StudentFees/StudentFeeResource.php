@@ -24,6 +24,14 @@ class StudentFeeResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Finance';
 
+    protected static ?string $navigationLabel = 'Student Fees';
+
+    protected static ?string $modelLabel = 'Student Fee';
+
+    protected static ?string $pluralModelLabel = 'Student Fees';
+
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return StudentFeeForm::configure($schema);

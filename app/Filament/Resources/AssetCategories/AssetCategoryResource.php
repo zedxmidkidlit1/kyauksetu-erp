@@ -19,9 +19,17 @@ class AssetCategoryResource extends Resource
 {
     protected static ?string $model = AssetCategory::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
     protected static string|UnitEnum|null $navigationGroup = 'Inventory';
+
+    protected static ?string $navigationLabel = 'Asset Categories';
+
+    protected static ?string $modelLabel = 'Asset Category';
+
+    protected static ?string $pluralModelLabel = 'Asset Categories';
+
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {
