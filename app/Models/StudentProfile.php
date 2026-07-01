@@ -70,6 +70,11 @@ class StudentProfile extends Model
         return $this->hasMany(StudentStatusHistory::class);
     }
 
+    public function hostelAllocations(): HasMany
+    {
+        return $this->hasMany(HostelAllocation::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

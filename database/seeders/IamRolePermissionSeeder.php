@@ -152,6 +152,22 @@ class IamRolePermissionSeeder extends Seeder
             'library_loans.create',
             'library_loans.update',
             'library_loans.delete',
+            'hostels.view',
+            'hostels.create',
+            'hostels.update',
+            'hostels.delete',
+            'hostel_rooms.view',
+            'hostel_rooms.create',
+            'hostel_rooms.update',
+            'hostel_rooms.delete',
+            'hostel_beds.view',
+            'hostel_beds.create',
+            'hostel_beds.update',
+            'hostel_beds.delete',
+            'hostel_allocations.view',
+            'hostel_allocations.create',
+            'hostel_allocations.update',
+            'hostel_allocations.delete',
         ];
 
         foreach ($permissions as $permission) {
