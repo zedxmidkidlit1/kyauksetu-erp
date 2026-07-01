@@ -41,6 +41,21 @@ class TeacherProfile extends Model
         return $this->hasMany(TeachingAssignment::class);
     }
 
+    public function staffEmployments(): HasMany
+    {
+        return $this->hasMany(StaffEmployment::class);
+    }
+
+    public function staffLeaveRequests(): HasMany
+    {
+        return $this->hasMany(StaffLeaveRequest::class);
+    }
+
+    public function staffDocuments(): HasMany
+    {
+        return $this->hasMany(StaffDocument::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
