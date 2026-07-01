@@ -75,6 +75,16 @@ class StudentProfile extends Model
         return $this->hasMany(HostelAllocation::class);
     }
 
+    public function studentFees(): HasMany
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
+    public function studentPayments(): HasMany
+    {
+        return $this->hasMany(StudentPayment::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

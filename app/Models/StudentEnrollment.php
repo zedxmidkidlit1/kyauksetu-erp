@@ -81,6 +81,11 @@ class StudentEnrollment extends Model
         return $this->hasMany(ResultBatchItem::class);
     }
 
+    public function studentFees(): HasMany
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
