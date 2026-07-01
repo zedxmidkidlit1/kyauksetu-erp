@@ -64,6 +64,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(StaffDocument::class);
     }
 
+    public function verifiedAdmissionDocuments(): HasMany
+    {
+        return $this->hasMany(AdmissionDocument::class, 'verified_by');
+    }
+
+    public function admissionDecisions(): HasMany
+    {
+        return $this->hasMany(AdmissionDecision::class, 'decided_by');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

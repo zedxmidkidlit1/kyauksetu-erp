@@ -46,6 +46,8 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('SIS'),
                 NavigationGroup::make()
+                    ->label('Admissions'),
+                NavigationGroup::make()
                     ->label('Academic Operations'),
                 NavigationGroup::make()
                     ->label('Attendance'),

@@ -9,18 +9,29 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-#[Fillable(['department_id', 'program_id', 'name', 'code', 'status'])]
-class Major extends Model
+#[Fillable([
+    'academic_year_id',
+    'program_id',
+    'name',
+    'code',
+    'description',
+    'opens_at',
+    'closes_at',
+    'capacity',
+    'status',
+    'remarks',
+])]
+class AdmissionBatch extends Model
 {
     use LogsActivity;
 
     protected $attributes = [
-        'status' => 'active',
+        'status' => 'draft',
     ];
 
-    public function department(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(AcademicYear::class);
     }
 
     public function program(): BelongsTo
@@ -28,27 +39,29 @@ class Major extends Model
         return $this->belongsTo(Program::class);
     }
 
-    public function classSections(): HasMany
-    {
-        return $this->hasMany(ClassSection::class);
-    }
-
     public function admissionApplications(): HasMany
     {
         return $this->hasMany(AdmissionApplication::class);
     }
 
-    public function curriculums(): HasMany
-    {
-        return $this->hasMany(Curriculum::class);
-    }
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('academic')
+            ->useLogName('admissions')
             ->logFillable()
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'opens_at' => 'date',
+            'closes_at' => 'date',
+            'capacity' => 'integer',
+        ];
     }
 }

@@ -27,6 +27,16 @@ class Program extends Model
         return $this->hasMany(Curriculum::class);
     }
 
+    public function admissionBatches(): HasMany
+    {
+        return $this->hasMany(AdmissionBatch::class);
+    }
+
+    public function admissionApplications(): HasMany
+    {
+        return $this->hasMany(AdmissionApplication::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -38,6 +38,16 @@ class AcademicYear extends Model
         return $this->hasMany(StudentCourseResult::class);
     }
 
+    public function admissionBatches(): HasMany
+    {
+        return $this->hasMany(AdmissionBatch::class);
+    }
+
+    public function admissionApplications(): HasMany
+    {
+        return $this->hasMany(AdmissionApplication::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
