@@ -30,7 +30,7 @@ app/Filament/Resources/Books/
 
 Model conventions:
 
-- Use `#[Fillable([...])]` for mass-assignable fields.
+- Use the same fillable style as existing models, either `#[Fillable([...])]` or `protected $fillable = [...]`.
 - Define Eloquent relationships with explicit return types.
 - Use model `$attributes` for simple default statuses.
 - Use `casts(): array` for dates, decimals, booleans, and enums/status-like fields when needed.
