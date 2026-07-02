@@ -2,13 +2,25 @@
 
 use App\Http\Controllers\Api\V1\KaiChatController;
 use App\Http\Controllers\Api\V1\KaiContextController;
+use App\Http\Controllers\Api\V1\MobileAuthController;
 use App\Http\Controllers\Api\V1\StudentDataController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')
     ->name('api.v1.')
+    ->group(function (): void {
+        Route::post('auth/login', [MobileAuthController::class, 'login'])
+            ->middleware('throttle:10,1')
+            ->name('auth.login');
+    });
+
+Route::prefix('v1')
+    ->name('api.v1.')
     ->middleware('auth:sanctum')
     ->group(function (): void {
+        Route::get('auth/me', [MobileAuthController::class, 'me'])->name('auth.me');
+        Route::post('auth/logout', [MobileAuthController::class, 'logout'])->name('auth.logout');
+
         Route::post('kai/chat', KaiChatController::class)->name('kai.chat');
         Route::get('kai/context', KaiContextController::class)->name('kai.context');
 
