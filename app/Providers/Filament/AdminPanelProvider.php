@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName((string) config('app.display_name', 'Kyauksetu ERP'))
             ->login()
             ->colors([
                 'primary' => Color::Amber,

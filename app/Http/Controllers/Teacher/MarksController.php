@@ -23,7 +23,7 @@ class MarksController extends Controller
 
         return view('teacher.marks.index', [
             'profile' => $profile,
-            'components' => $this->componentQuery($profile)
+            'assessmentComponents' => $this->componentQuery($profile)
                 ->with(['academicYear', 'semester', 'classSection', 'course'])
                 ->withCount('studentMarks')
                 ->latest()

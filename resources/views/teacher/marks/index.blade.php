@@ -8,7 +8,7 @@
         </div>
     </div>
 
-    @if ($components->isEmpty())
+    @if ($assessmentComponents->isEmpty())
         <x-teacher.empty-state message="No assessment components are available for your assignments yet." />
     @else
         <x-teacher.card>
@@ -24,7 +24,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($components as $assessmentComponent)
+                    @foreach ($assessmentComponents as $assessmentComponent)
                         <tr>
                             <td>
                                 <strong><a href="{{ route('teacher.marks.components.show', $assessmentComponent) }}">{{ $assessmentComponent->name }}</a></strong>

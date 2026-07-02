@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title ?? 'Teacher Portal' }} - {{ config('app.name', 'ERP') }}</title>
+        <title>{{ $title ?? 'Teacher Portal' }} - {{ config('app.display_name', 'Kyauksetu ERP') }}</title>
         <style>
             :root {
                 color-scheme: light;
