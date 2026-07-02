@@ -9,39 +9,61 @@
 ![PHPUnit](https://img.shields.io/badge/PHPUnit-12.x-3A6E35?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-Kyauksetu ERP is a Laravel and Filament based university ERP foundation. The current implementation focuses on identity and access management, academic master data, profile records, and the first SIS enrollment history layer.
+Kyauksetu ERP is a Laravel university ERP and KAI backend MVP. The current system combines a Filament admin panel, applicant/student/teacher web portals, Sanctum mobile authentication, and KAI context/chat APIs over a modular ERP data foundation.
 
-The system is intentionally modular. Login identity is kept separate from student, teacher, and staff profiles, and student enrollment history is tracked separately from the current student profile snapshot.
+The project is currently **demo-ready MVP stage**: seeded demo data supports the core admin, applicant, student, teacher, and KAI API journeys described in [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). A concise MVP review is available in [docs/MVP_REVIEW.md](docs/MVP_REVIEW.md).
 
 ## Table of Contents
 
-- [Status](#status)
+- [Current Stage](#current-stage)
+- [Application Surfaces](#application-surfaces)
 - [Tech Stack](#tech-stack)
-- [Implemented Foundations](#implemented-foundations)
+- [Completed MVP Features](#completed-mvp-features)
+- [Demo Flow](#demo-flow)
 - [Architecture](#architecture)
 - [Domain Model](#domain-model)
-- [Admin Panel](#admin-panel)
+- [Security and Audit](#security-and-audit)
+- [Known Limitations](#known-limitations)
+- [Production Readiness Gap](#production-readiness-gap)
 - [Local Development](#local-development)
 - [Verification](#verification)
 - [Project Structure](#project-structure)
-- [Security and Audit](#security-and-audit)
-- [Current Boundaries](#current-boundaries)
+- [Development Notes](#development-notes)
 
-## Status
+## Current Stage
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| IAM foundation | Implemented | Users, roles, permissions, future SSO identity mapping |
-| Audit logging | Implemented | Spatie Activitylog on important IAM, academic, profile, and SIS models |
-| Academic structure | Implemented | Departments, academic years, semesters, programs, majors, class sections |
-| Profiles | Implemented | Student, teacher, and staff profile foundations |
-| Student enrollment | Implemented | Historical student enrollment records |
-| Attendance | Not implemented | Out of current scope |
-| Grades and results | Not implemented | Out of current scope |
-| Timetable | Not implemented | Out of current scope |
-| Student portal | Not implemented | Out of current scope |
-| KAI integration | Not implemented | Out of current scope |
-| SSO and mobile auth | Not implemented | Tables are SSO-ready, behavior is not implemented |
+| ERP admin foundation | Implemented | Filament admin resources for ERP foundation and demo operations |
+| IAM / roles / permissions | Implemented | Spatie Permission roles, permissions, and policies |
+| Audit logging | Implemented | Spatie Activitylog on important managed records |
+| Academic structure | Implemented | Departments, years, semesters, programs, majors, sections, courses |
+| Admissions | Implemented | Batches, applicants, applications, decisions, conversion path |
+| Applicant portal | Implemented | Login, dashboard, applications, application detail/status |
+| Student portal | Implemented | Profile, enrollment, timetable, attendance, results, fees, library, hostel, announcements |
+| Teacher portal | Implemented | Profile, assignments, timetable, classes, announcements, attendance, marks |
+| Teacher attendance workflow | Implemented | Own-assignment attendance sessions and records |
+| Teacher marks workflow | Implemented | Own-assignment assessment components and student marks |
+| Mobile auth API | Implemented | Sanctum bearer-token login for supported student/teacher accounts |
+| KAI context/chat API | Implemented | Scoped context and local chat responder by default |
+| Laravel AI SDK foundation | Implemented | External provider config foundation and smoke command |
+| KAI logging/admin review | Implemented | Chat sessions/messages available for admin review |
+| Demo data and flow | Implemented | Demo accounts and seeded story in `docs/DEMO_FLOW.md` |
+| Flutter app | Not implemented | Recommended next phase |
+| Notifications | Not implemented | Recommended next phase |
+| SSO | Not implemented | Identity mapping foundation exists, login behavior is not enabled |
+
+## Application Surfaces
+
+| Surface | Path / Endpoint | Purpose |
+| --- | --- | --- |
+| Filament Admin | `/admin` | ERP administration, review, and operational records |
+| Applicant Portal | `/applicant/login` | Applicant login and admission application status |
+| Student Portal | `/student/login` | Student profile, academic activity, fees, library, hostel, announcements |
+| Teacher Portal | `/teacher/login` | Teacher assignments, classes, attendance, marks, announcements |
+| Mobile Auth API | `/api/v1/auth/login` | Sanctum token login for mobile/KAI clients |
+| KAI Context API | `/api/v1/kai/context` | Permission-safe student/teacher context |
+| KAI Chat API | `/api/v1/kai/chat` | Local KAI responder by default, external AI opt-in |
 
 ## Tech Stack
 
@@ -52,94 +74,138 @@ The system is intentionally modular. Login identity is kept separate from studen
 | Admin UI | Filament 5 |
 | Reactive layer | Livewire 4 |
 | Database | PostgreSQL |
-| Auth | Laravel session auth |
+| Web auth | Laravel session auth |
+| API auth | Laravel Sanctum |
 | Authorization | Spatie Laravel Permission |
 | Audit logs | Spatie Laravel Activitylog |
+| AI foundation | Laravel AI SDK |
 | Dev environment | Laravel Sail, Docker |
 | Frontend tooling | Vite, Tailwind CSS |
 | Testing | PHPUnit 12 |
 | Code style | Laravel Pint |
 | Laravel assistance | Laravel Boost |
 
-## Implemented Foundations
+## Completed MVP Features
 
-### IAM
+### ERP Admin Foundation
 
-- `User` represents login identity only.
-- Roles and permissions are provided by `spatie/laravel-permission`.
-- Current roles:
-  - `super_admin`
-  - `registrar`
-  - `department_admin`
-  - `teacher`
-  - `student`
-  - `librarian`
-  - `hostel_warden`
-  - `finance_officer`
-- `user_identities` exists for future SSO provider mapping.
+- Filament admin panel for managing and reviewing ERP data.
+- Modular admin resource groups for identity, people/profiles, academic structure, SIS, admissions, attendance, exams/results, communication, library, hostel, finance, inventory, HR, and KAI review records.
+- Demo branding and seeded data for presentation use.
 
-### Academic Structure
+### IAM, Permissions, and Audit
 
-- Departments
-- Academic years
-- Semesters
-- Programs
-- Majors
-- Class sections
+- `User` represents login identity.
+- Roles and permissions are managed with Spatie Permission.
+- Policies protect admin resources and portal workflows.
+- Important managed models use Spatie Activitylog.
+- `user_identities` provides a foundation for future SSO mapping.
 
-### Profiles
+Current roles include:
 
-- Student profiles store SIS-ready person and academic snapshot data.
-- Teacher profiles store teaching staff profile data.
-- Staff profiles store non-teaching staff profile data.
-- Profile records are separate from `users`.
+- `super_admin`
+- `registrar`
+- `department_admin`
+- `teacher`
+- `student`
+- `librarian`
+- `hostel_warden`
+- `finance_officer`
 
-### SIS Enrollment
+### Admissions and Applicant Portal
 
-- `StudentEnrollment` stores historical academic enrollment.
-- Student profile academic fields can remain as a current snapshot.
-- Enrollment history is tracked separately by academic year, semester, program, major, class section, year level, and status.
+- Admission batches, applicants, applications, decisions, and supporting records.
+- Applicant login, dashboard, applications list, application detail, and status view.
+- Accepted applicant-to-student conversion path through admin workflow.
+
+### Student Portal
+
+- Student dashboard and profile.
+- Enrollment and academic placement.
+- Timetable, attendance, results, fees, library loans, hostel allocation, and announcements.
+- Demo story links the accepted admission to an active student profile with populated academic/support records.
+
+### Teacher Portal
+
+- Teacher dashboard and profile.
+- Assignments, timetable, classes, and announcements.
+- Attendance workflow scoped to the teacher's assigned classes.
+- Marks workflow scoped to the teacher's assigned assessment components and enrolled students.
+
+### Mobile and KAI APIs
+
+- Sanctum mobile login for student and teacher users.
+- KAI context endpoint for permission-safe student/teacher context.
+- KAI chat endpoint using the local responder by default.
+- External AI provider configuration foundation through Laravel AI SDK.
+- KAI smoke command for checking local/external responder configuration.
+- KAI chat logging for admin review.
+
+## Demo Flow
+
+Use [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md) as the source of truth for the demo journey.
+
+Demo accounts use:
+
+```text
+DemoPass123!
+```
+
+| Role | Email | Journey |
+| --- | --- | --- |
+| Super admin | `demo.admin@kyauksetu.test` | Admin review across ERP modules |
+| Admission officer | `demo.admissions@kyauksetu.test` | Admissions/admin review using registrar role |
+| Applicant | `demo.applicant@kyauksetu.test` | Applicant dashboard and accepted application |
+| Student | `demo.student@kyauksetu.test` | Student portal and KAI mobile/API context |
+| Teacher | `demo.teacher@kyauksetu.test` | Teacher portal, attendance, and marks |
+
+Seed demo data in a non-production environment only:
+
+```bash
+vendor/bin/sail artisan db:seed --class=DemoDataSeeder
+```
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     Admin["Admin User"] --> Browser["Browser"]
-    Browser --> Panel["Filament Admin Panel<br>/admin"]
+    Applicant["Applicant"] --> ApplicantPortal["Applicant Portal"]
+    Student["Student"] --> StudentPortal["Student Portal"]
+    Teacher["Teacher"] --> TeacherPortal["Teacher Portal"]
+    Mobile["Mobile / KAI Client"] --> API["Sanctum + KAI APIs"]
 
-    Panel --> Resources["Filament Resources"]
-    Resources --> Policies["Laravel Policies"]
-    Policies --> Permissions["Spatie Permission<br>roles + permissions"]
+    Browser --> Panel["Filament Admin<br>/admin"]
+    ApplicantPortal --> Laravel["Laravel Application"]
+    StudentPortal --> Laravel
+    TeacherPortal --> Laravel
+    API --> Laravel
+    Panel --> Laravel
 
-    Resources --> Models["Eloquent Models"]
+    Laravel --> Policies["Policies + Permissions"]
+    Policies --> Models["Eloquent Models"]
     Models --> DB[("PostgreSQL")]
-    Models --> Audit["Spatie Activitylog"]
-
-    Sail["Laravel Sail"] --> App["Laravel Application"]
-    Boost["Laravel Boost"] --> App
-    App --> Panel
+    Models --> Audit["Activity Log"]
+    Laravel --> Kai["KAI Context + Chat"]
 ```
 
 ### Request and Authorization Flow
 
 ```mermaid
 sequenceDiagram
-    participant A as Admin
-    participant F as Filament Resource
-    participant P as Policy
-    participant R as Role/Permission Store
+    participant U as User
+    participant R as Route / Portal / Resource
+    participant P as Policy / Middleware
     participant M as Eloquent Model
-    participant L as Activity Log
     participant D as PostgreSQL
+    participant A as Activity Log
 
-    A->>F: Create / update / delete record
-    F->>P: Authorize action
-    P->>R: Check permission
-    R-->>P: Allowed / denied
-    P-->>F: Authorization result
-    F->>M: Persist model change
-    M->>D: Write data
-    M->>L: Record audit event
+    U->>R: Request page, action, or API endpoint
+    R->>P: Authenticate and authorize
+    P-->>R: Allowed / denied
+    R->>M: Read or write scoped data
+    M->>D: Query / persist
+    M->>A: Record audit where configured
 ```
 
 ## Domain Model
@@ -151,46 +217,64 @@ erDiagram
     USERS ||--o| STAFF_PROFILES : login_identity
     USERS ||--o{ USER_IDENTITIES : future_sso_mapping
 
+    APPLICANTS ||--o{ ADMISSION_APPLICATIONS : submits
+    ADMISSION_BATCHES ||--o{ ADMISSION_APPLICATIONS : receives
+    ADMISSION_APPLICATIONS ||--o| ADMISSION_DECISIONS : decision
+    ADMISSION_APPLICATIONS ||--o{ ADMISSION_DOCUMENTS : documents
+
     DEPARTMENTS ||--o{ MAJORS : owns
     PROGRAMS ||--o{ MAJORS : contains
     ACADEMIC_YEARS ||--o{ SEMESTERS : contains
     ACADEMIC_YEARS ||--o{ CLASS_SECTIONS : groups
     MAJORS ||--o{ CLASS_SECTIONS : offers
 
-    STUDENT_PROFILES }o--|| DEPARTMENTS : belongs_to
-    STUDENT_PROFILES }o--|| PROGRAMS : snapshot_program
-    STUDENT_PROFILES }o--|| MAJORS : snapshot_major
-    STUDENT_PROFILES }o--|| ACADEMIC_YEARS : snapshot_year
-    STUDENT_PROFILES }o--|| CLASS_SECTIONS : snapshot_section
-
     STUDENT_PROFILES ||--o{ STUDENT_ENROLLMENTS : history
-    STUDENT_ENROLLMENTS }o--|| ACADEMIC_YEARS : year
-    STUDENT_ENROLLMENTS }o--o| SEMESTERS : semester
-    STUDENT_ENROLLMENTS }o--|| PROGRAMS : program
-    STUDENT_ENROLLMENTS }o--|| MAJORS : major
-    STUDENT_ENROLLMENTS }o--o| CLASS_SECTIONS : section
+    STUDENT_ENROLLMENTS ||--o{ ATTENDANCE_RECORDS : attendance
+    STUDENT_ENROLLMENTS ||--o{ STUDENT_MARKS : marks
+    STUDENT_PROFILES ||--o{ STUDENT_FEES : fees
+    STUDENT_PROFILES ||--o{ LIBRARY_LOANS : loans
+    STUDENT_PROFILES ||--o{ HOSTEL_ALLOCATIONS : allocations
 
-    TEACHER_PROFILES }o--|| DEPARTMENTS : belongs_to
-    STAFF_PROFILES }o--|| DEPARTMENTS : belongs_to
+    TEACHER_PROFILES ||--o{ TEACHING_ASSIGNMENTS : assignments
+    TEACHING_ASSIGNMENTS ||--o{ ATTENDANCE_SESSIONS : attendance
+    COURSES ||--o{ ASSESSMENT_COMPONENTS : assessments
 ```
 
-## Admin Panel
+## Security and Audit
 
-The ERP administration panel is available at:
+- Admin resources are protected through Filament, Laravel policies, and role/permission checks.
+- Portal routes are scoped to the authenticated applicant, student, or teacher.
+- Teacher attendance and marks workflows enforce own-assignment / own-class access.
+- Tests cover important cross-user protection paths.
+- KAI context is assembled from permission-safe user context.
+- KAI does not receive unrestricted SQL or database access.
+- External AI calls are opt-in; local deterministic responder is the default.
+- KAI logs are available for admin review while avoiding secrets and unrestricted raw context exposure.
 
-```text
-/admin
-```
+## Known Limitations
 
-Current Filament resource groups include:
+- No Flutter app yet.
+- External AI is not enabled by default.
+- No notifications yet.
+- No file upload workflow yet.
+- No payment gateway.
+- No SSO login behavior yet.
+- No advanced reports/PDFs yet.
+- No full production deployment hardening yet.
 
-| Group | Resources |
-| --- | --- |
-| IAM | Users |
-| Organization | Departments |
-| Academic Structure | Academic Years, Semesters, Programs, Majors, Class Sections |
-| Profiles | Student Profiles, Teacher Profiles, Staff Profiles |
-| SIS | Student Enrollments |
+## Production Readiness Gap
+
+Before production rollout, the project still needs:
+
+- Production deployment target and deploy process.
+- Database backup and restore plan.
+- Monitoring, centralized logging, and alerting.
+- Production environment/secret management.
+- Queue worker and scheduler supervision where async work is introduced.
+- File storage strategy for uploaded/private documents.
+- Rate limiting review for auth, KAI, and high-risk endpoints.
+- Real data migration planning and reconciliation.
+- Stakeholder review of the final permission matrix.
 
 ## Local Development
 
@@ -218,11 +302,19 @@ vendor/bin/sail artisan key:generate
 
 Update database values in `.env` if needed. The active project environment is PostgreSQL-oriented.
 
-### Run migrations and seeders
+### Run migrations and core seeders
 
 ```bash
 vendor/bin/sail artisan migrate
 vendor/bin/sail artisan db:seed --class=IamRolePermissionSeeder
+```
+
+### Seed demo data
+
+Use only in non-production environments:
+
+```bash
+vendor/bin/sail artisan db:seed --class=DemoDataSeeder
 ```
 
 ### Build frontend assets
@@ -251,10 +343,10 @@ Format PHP code:
 vendor/bin/sail bin pint --dirty --format agent
 ```
 
-Check admin routes:
+Check KAI responder configuration:
 
 ```bash
-vendor/bin/sail artisan route:list --path=admin --except-vendor
+vendor/bin/sail artisan kai:smoke
 ```
 
 Audit Composer dependencies:
@@ -267,48 +359,35 @@ vendor/bin/sail composer audit
 
 ```text
 app/
+  Console/Commands/      KAI smoke and project commands
   Filament/
-    Resources/          Admin CRUD resources
-  Models/               Eloquent domain models
-  Policies/             Authorization policies
+    Resources/           Admin CRUD and review resources
+    Widgets/             Admin dashboard widgets
+  Http/
+    Controllers/         Portal and API controllers
+    Middleware/          Applicant/student/teacher guards
+    Requests/            Form request validation
+    Resources/           API response resources
+  Models/                Eloquent domain models
+  Policies/              Authorization policies
+  Services/Kai/          KAI context, responder, prompt, and logging services
 database/
-  migrations/           Database schema history
-  seeders/              Role and permission seeders
-config/
-  permission.php        Spatie permission configuration
-  activitylog.php       Spatie activitylog configuration
+  migrations/            Database schema history
+  seeders/               IAM, smoke, and demo seeders
+docs/
+  DEMO_FLOW.md           Demo journey source of truth
+  MVP_REVIEW.md          Current MVP review
 routes/
-  web.php               Web route entrypoint
+  api.php                Mobile and KAI API routes
+  web.php                Web portal routes
 ```
-
-## Security and Audit
-
-- All admin resources are protected through Filament and Laravel policies.
-- Permissions are seeded centrally through `IamRolePermissionSeeder`.
-- `super_admin` receives all seeded permissions.
-- Important IAM, academic, profile, and SIS models use Spatie Activitylog.
-- `User` is intentionally kept as login identity only.
-- `UserIdentity` exists for future provider mapping, but SSO behavior is not implemented.
-
-## Current Boundaries
-
-The codebase currently provides ERP/SIS foundations only. The following are intentionally not implemented yet:
-
-- Attendance
-- Grades and result management
-- Timetable
-- Enrollment workflows beyond historical enrollment records
-- Finance
-- Student portal
-- KAI integration
-- Sanctum mobile authentication
-- SSO login behavior
 
 ## Development Notes
 
 - Use Laravel, Filament, and Laravel Boost conventions.
+- Run project commands through Sail.
 - Prefer Artisan generators for new Laravel and Filament classes.
-- Run commands through Sail.
 - Keep user identity, institutional profiles, and academic history separate.
 - Add permissions and policies with each new admin-managed domain model.
+- Keep KAI context permission-safe and role-scoped.
 - Keep migrations forward-only once they have run in shared environments.
