@@ -10,6 +10,7 @@ class KaiResponder
     public function __construct(
         private readonly StudentContextBuilder $contextBuilder,
         private readonly AiResponder $aiResponder,
+        private readonly KaiChatLogger $chatLogger,
     ) {}
 
     /**
@@ -31,6 +32,8 @@ class KaiResponder
         if ($requestId) {
             $payload['request_id'] = $requestId;
         }
+
+        $this->chatLogger->logExchange($user, $message, $payload, $requestId);
 
         return $payload;
     }

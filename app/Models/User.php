@@ -65,6 +65,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(StaffDocument::class);
     }
 
+    public function kaiChatSessions(): HasMany
+    {
+        return $this->hasMany(KaiChatSession::class);
+    }
+
+    public function kaiChatMessages(): HasMany
+    {
+        return $this->hasMany(KaiChatMessage::class);
+    }
+
     public function verifiedAdmissionDocuments(): HasMany
     {
         return $this->hasMany(AdmissionDocument::class, 'verified_by');

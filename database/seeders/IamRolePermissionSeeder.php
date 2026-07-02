@@ -32,6 +32,8 @@ class IamRolePermissionSeeder extends Seeder
             'teachers.create',
             'teachers.update',
             'kai.chat',
+            'kai_chat_sessions.view',
+            'kai_chat_messages.view',
             'academic_years.view',
             'academic_years.create',
             'academic_years.update',
