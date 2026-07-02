@@ -27,13 +27,16 @@ class ApplicantPortalTest extends TestCase
 
         $response->assertRedirect(route('applicant.dashboard'));
         $this->assertAuthenticated();
+        $user = User::where('email', 'aye.chan@example.test')->firstOrFail();
+
         $this->assertDatabaseHas('applicants', [
+            'user_id' => $user->id,
             'email' => 'aye.chan@example.test',
             'first_name' => 'Aye',
             'last_name' => 'Chan',
         ]);
 
-        $this->assertTrue(User::where('email', 'aye.chan@example.test')->firstOrFail()->hasRole('applicant'));
+        $this->assertTrue($user->hasRole('applicant'));
     }
 
     public function test_guest_is_redirected_to_applicant_login(): void
@@ -102,6 +105,7 @@ class ApplicantPortalTest extends TestCase
         $user->assignRole('applicant');
 
         $applicant = Applicant::create([
+            'user_id' => $user->id,
             'applicant_no' => 'APP-'.strtoupper(strtok($email, '@')),
             'first_name' => 'Applicant',
             'last_name' => 'User',

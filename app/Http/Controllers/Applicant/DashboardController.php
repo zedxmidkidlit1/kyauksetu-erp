@@ -31,6 +31,13 @@ class DashboardController extends Controller
 
     private function currentApplicant(Request $request): Applicant
     {
-        return Applicant::where('email', $request->user()->email)->firstOrFail();
+        return Applicant::query()
+            ->where('user_id', $request->user()->id)
+            ->orWhere(function ($query) use ($request): void {
+                $query
+                    ->whereNull('user_id')
+                    ->where('email', $request->user()->email);
+            })
+            ->firstOrFail();
     }
 }

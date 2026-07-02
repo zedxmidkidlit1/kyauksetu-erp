@@ -14,6 +14,10 @@ use Spatie\Activitylog\Support\LogOptions;
     'student_no',
     'roll_no',
     'institutional_email',
+    'first_name',
+    'last_name',
+    'date_of_birth',
+    'phone',
     'department_id',
     'program_id',
     'major_id',
@@ -21,6 +25,7 @@ use Spatie\Activitylog\Support\LogOptions;
     'class_section_id',
     'admission_year',
     'status',
+    'enrolled_at',
 ])]
 class StudentProfile extends Model
 {
@@ -101,6 +106,8 @@ class StudentProfile extends Model
     {
         return [
             'admission_year' => 'integer',
+            'date_of_birth' => 'date',
+            'enrolled_at' => 'date',
         ];
     }
 }

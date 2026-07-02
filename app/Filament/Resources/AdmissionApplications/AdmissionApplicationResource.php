@@ -48,9 +48,11 @@ class AdmissionApplicationResource extends Resource
             ->with([
                 'academicYear',
                 'admissionBatch',
+                'admissionDecision',
                 'applicant',
                 'major',
                 'program',
+                'studentProfile',
             ]);
     }
 

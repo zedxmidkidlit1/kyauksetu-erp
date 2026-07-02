@@ -39,6 +39,7 @@ class AuthController extends Controller
         $user->assignRole('applicant');
 
         $applicant = Applicant::create([
+            'user_id' => $user->id,
             'first_name' => $data['first_name'],
             'middle_name' => $data['middle_name'] ?? null,
             'last_name' => $data['last_name'],
@@ -84,7 +85,7 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
-        if (! Applicant::where('email', $request->user()->email)->exists()) {
+        if (! $this->applicantExistsFor($request->user())) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -95,6 +96,18 @@ class AuthController extends Controller
         }
 
         return redirect()->intended(route('applicant.dashboard'));
+    }
+
+    private function applicantExistsFor(User $user): bool
+    {
+        return Applicant::query()
+            ->where('user_id', $user->id)
+            ->orWhere(function ($query) use ($user): void {
+                $query
+                    ->whereNull('user_id')
+                    ->where('email', $user->email);
+            })
+            ->exists();
     }
 
     public function logout(Request $request): RedirectResponse
