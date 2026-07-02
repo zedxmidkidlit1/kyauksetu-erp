@@ -1,7 +1,29 @@
 <?php
 
+use App\Http\Controllers\Applicant\ApplicationController;
+use App\Http\Controllers\Applicant\AuthController;
+use App\Http\Controllers\Applicant\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::prefix('applicant')
+    ->name('applicant.')
+    ->group(function (): void {
+        Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+        Route::post('register', [AuthController::class, 'register'])->name('register.store');
+        Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+        Route::post('login', [AuthController::class, 'login'])->name('login.store');
+
+        Route::middleware('applicant')->group(function (): void {
+            Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+            Route::get('/', DashboardController::class)->name('dashboard');
+            Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
+            Route::get('applications/create', [ApplicationController::class, 'create'])->name('applications.create');
+            Route::post('applications', [ApplicationController::class, 'store'])->name('applications.store');
+            Route::get('applications/{admissionApplication}', [ApplicationController::class, 'show'])->name('applications.show');
+            Route::get('applications/{admissionApplication}/status', [ApplicationController::class, 'status'])->name('applications.status');
+        });
+    });

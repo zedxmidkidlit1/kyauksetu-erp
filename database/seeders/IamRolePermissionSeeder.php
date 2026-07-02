@@ -254,6 +254,7 @@ class IamRolePermissionSeeder extends Seeder
             'librarian',
             'hostel_warden',
             'finance_officer',
+            'applicant',
         ];
 
         foreach ($roles as $role) {
