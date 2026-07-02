@@ -14,6 +14,7 @@ use App\Services\Kai\Contracts\AiResponder;
 use App\Services\Kai\ExternalAiResponder;
 use App\Services\Kai\LocalAiResponder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Ai\AnonymousAgent;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -40,8 +41,10 @@ class KaiProviderTest extends TestCase
         config([
             'kai.responder' => 'external',
             'kai.provider.enabled' => true,
-            'kai.provider.endpoint' => null,
-            'kai.provider.api_key' => 'super-secret-test-key',
+            'kai.provider.name' => 'openai',
+            'kai.provider.model' => 'kai-test-model',
+            'kai.provider.endpoint' => 'https://provider.example.test',
+            'kai.provider.api_key' => null,
         ]);
 
         $response = app(AiResponder::class)->respond('Show my fees', [
@@ -52,7 +55,49 @@ class KaiProviderTest extends TestCase
         ]);
 
         $this->assertSame('You have 1 unpaid or due fee item(s) totaling 5000.00.', $response['reply']);
-        $this->assertStringNotContainsString('super-secret-test-key', json_encode($response, JSON_THROW_ON_ERROR));
+        $this->assertStringNotContainsString('provider.example.test', json_encode($response, JSON_THROW_ON_ERROR));
+    }
+
+    public function test_external_driver_config_path_uses_laravel_ai_sdk(): void
+    {
+        config([
+            'kai.responder' => 'external',
+            'kai.provider.enabled' => true,
+            'kai.provider.name' => 'openai',
+            'kai.provider.model' => 'kai-test-model',
+            'kai.provider.endpoint' => 'https://provider.example.test',
+            'kai.provider.api_key' => 'fake-provider-key',
+        ]);
+
+        AnonymousAgent::fake([
+            'Your KAI provider reply is ready.',
+        ]);
+
+        $response = app(AiResponder::class)->respond('Show my timetable', [
+            'student_profile' => [
+                'student_no' => 'KAI-STU-001',
+            ],
+            'today_upcoming_timetable' => [
+                'count' => 1,
+                'items' => [
+                    ['course' => 'Physics', 'starts_at' => '09:00'],
+                ],
+            ],
+        ]);
+
+        $this->assertSame('Your KAI provider reply is ready.', $response['reply']);
+        $this->assertSame([
+            'Show my timetable',
+            'Check unpaid fees',
+            'Show latest results',
+        ], $response['suggestions']);
+
+        AnonymousAgent::assertPrompted(function ($prompt): bool {
+            return $prompt->contains('Show my timetable')
+                && $prompt->contains('student_profile')
+                && $prompt->provider()->name() === 'openai'
+                && $prompt->model === 'kai-test-model';
+        });
     }
 
     public function test_chat_endpoint_still_returns_safe_compact_json(): void
