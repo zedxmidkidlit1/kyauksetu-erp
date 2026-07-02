@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureApplicant;
 use App\Http\Middleware\EnsureStudent;
+use App\Http\Middleware\EnsureTeacher;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'applicant' => EnsureApplicant::class,
             'student' => EnsureStudent::class,
+            'teacher' => EnsureTeacher::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

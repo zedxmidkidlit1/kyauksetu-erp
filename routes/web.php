@@ -5,6 +5,8 @@ use App\Http\Controllers\Applicant\AuthController;
 use App\Http\Controllers\Applicant\DashboardController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\PortalController as StudentPortalController;
+use App\Http\Controllers\Teacher\AuthController as TeacherAuthController;
+use App\Http\Controllers\Teacher\PortalController as TeacherPortalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -48,5 +50,22 @@ Route::prefix('student')
             Route::get('library', [StudentPortalController::class, 'library'])->name('library');
             Route::get('hostel', [StudentPortalController::class, 'hostel'])->name('hostel');
             Route::get('announcements', [StudentPortalController::class, 'announcements'])->name('announcements');
+        });
+    });
+
+Route::prefix('teacher')
+    ->name('teacher.')
+    ->group(function (): void {
+        Route::get('login', [TeacherAuthController::class, 'showLogin'])->name('login');
+        Route::post('login', [TeacherAuthController::class, 'login'])->name('login.store');
+
+        Route::middleware('teacher')->group(function (): void {
+            Route::post('logout', [TeacherAuthController::class, 'logout'])->name('logout');
+            Route::get('/', [TeacherPortalController::class, 'dashboard'])->name('dashboard');
+            Route::get('profile', [TeacherPortalController::class, 'profile'])->name('profile');
+            Route::get('assignments', [TeacherPortalController::class, 'assignments'])->name('assignments');
+            Route::get('timetable', [TeacherPortalController::class, 'timetable'])->name('timetable');
+            Route::get('classes', [TeacherPortalController::class, 'classes'])->name('classes');
+            Route::get('announcements', [TeacherPortalController::class, 'announcements'])->name('announcements');
         });
     });
