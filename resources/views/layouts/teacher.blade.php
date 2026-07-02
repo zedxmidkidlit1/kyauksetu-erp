@@ -182,7 +182,8 @@
                 margin-bottom: .35rem;
             }
 
-            input {
+            input,
+            select {
                 background: #fff;
                 border: 1px solid var(--line);
                 border-radius: .375rem;
@@ -289,6 +290,7 @@
                                 <a href="{{ route('teacher.assignments') }}">Assignments</a>
                                 <a href="{{ route('teacher.timetable') }}">Timetable</a>
                                 <a href="{{ route('teacher.classes') }}">Classes</a>
+                                <a href="{{ route('teacher.attendance.index') }}">Attendance</a>
                                 <a href="{{ route('teacher.announcements') }}">Announcements</a>
                                 <form method="POST" action="{{ route('teacher.logout') }}">
                                     @csrf

@@ -5,6 +5,7 @@ use App\Http\Controllers\Applicant\AuthController;
 use App\Http\Controllers\Applicant\DashboardController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\PortalController as StudentPortalController;
+use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\AuthController as TeacherAuthController;
 use App\Http\Controllers\Teacher\PortalController as TeacherPortalController;
 use Illuminate\Support\Facades\Route;
@@ -67,5 +68,9 @@ Route::prefix('teacher')
             Route::get('timetable', [TeacherPortalController::class, 'timetable'])->name('timetable');
             Route::get('classes', [TeacherPortalController::class, 'classes'])->name('classes');
             Route::get('announcements', [TeacherPortalController::class, 'announcements'])->name('announcements');
+            Route::get('attendance', [TeacherAttendanceController::class, 'index'])->name('attendance.index');
+            Route::post('attendance/sessions', [TeacherAttendanceController::class, 'store'])->name('attendance.sessions.store');
+            Route::get('attendance/sessions/{session}', [TeacherAttendanceController::class, 'show'])->name('attendance.sessions.show');
+            Route::post('attendance/sessions/{session}/records', [TeacherAttendanceController::class, 'updateRecords'])->name('attendance.sessions.records.update');
         });
     });
