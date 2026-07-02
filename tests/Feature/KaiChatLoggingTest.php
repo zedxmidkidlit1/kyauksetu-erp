@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Ai\AnonymousAgent;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -101,6 +102,47 @@ class KaiChatLoggingTest extends TestCase
         $this->assertSame(2, KaiChatMessage::query()->whereBelongsTo($secondUser)->count());
         $this->assertSame(0, $firstSession->messages()->where('user_id', $secondUser->id)->count());
         $this->assertSame(0, $secondSession->messages()->where('user_id', $firstUser->id)->count());
+    }
+
+    public function test_chat_logging_stores_external_provider_metadata_without_provider_secret(): void
+    {
+        config([
+            'kai.responder' => 'external',
+            'kai.provider.enabled' => true,
+            'kai.provider.name' => 'openai',
+            'kai.provider.model' => 'kai-test-model',
+            'kai.provider.api_key' => 'super-secret-test-key',
+        ]);
+
+        AnonymousAgent::fake([
+            'External provider reply.',
+        ]);
+
+        $user = $this->createStudentUser('EXT');
+
+        Sanctum::actingAs($user);
+
+        $this
+            ->postJson('/api/v1/kai/chat', ['message' => 'Hello external KAI'])
+            ->assertOk()
+            ->assertJsonPath('data.reply', 'External provider reply.');
+
+        $session = KaiChatSession::query()->whereBelongsTo($user)->sole();
+        $assistantMessage = KaiChatMessage::query()
+            ->whereBelongsTo($user)
+            ->where('role', 'assistant')
+            ->sole();
+
+        $this->assertSame('external', $session->driver);
+        $this->assertSame('openai', $session->provider);
+        $this->assertSame('kai-test-model', $session->model);
+        $this->assertSame('external', $assistantMessage->driver);
+        $this->assertSame('openai', $assistantMessage->provider);
+        $this->assertSame('kai-test-model', $assistantMessage->model);
+        $this->assertStringNotContainsString('super-secret-test-key', json_encode([
+            'session' => $session->only(['title', 'driver', 'provider', 'model', 'metadata']),
+            'message' => $assistantMessage->only(['content', 'context_keys', 'driver', 'provider', 'model', 'metadata']),
+        ], JSON_THROW_ON_ERROR));
     }
 
     public function test_chat_endpoint_still_returns_compact_safe_json(): void
