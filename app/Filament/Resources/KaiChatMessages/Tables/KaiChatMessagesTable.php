@@ -6,6 +6,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class KaiChatMessagesTable
 {
@@ -28,7 +29,7 @@ class KaiChatMessagesTable
                     ->searchable(),
                 TextColumn::make('context_keys')
                     ->label('Context keys')
-                    ->formatStateUsing(fn (?array $state): string => collect($state ?? [])->join(', '))
+                    ->formatStateUsing(fn (mixed $state): string => self::formatContextKeys($state))
                     ->placeholder('None'),
                 TextColumn::make('driver')
                     ->badge()
@@ -62,5 +63,32 @@ class KaiChatMessagesTable
             ->recordActions([
                 ViewAction::make(),
             ]);
+    }
+
+    private static function formatContextKeys(mixed $state): string
+    {
+        if (blank($state)) {
+            return '';
+        }
+
+        if (is_string($state)) {
+            $decoded = json_decode($state, true);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $state = $decoded;
+            } else {
+                return $state;
+            }
+        }
+
+        if (! is_array($state)) {
+            return (string) $state;
+        }
+
+        return collect($state)
+            ->flatten()
+            ->map(fn (mixed $key): string => Str::of((string) $key)->trim()->toString())
+            ->filter()
+            ->join(', ');
     }
 }
