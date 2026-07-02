@@ -291,6 +291,7 @@
                                 <a href="{{ route('teacher.timetable') }}">Timetable</a>
                                 <a href="{{ route('teacher.classes') }}">Classes</a>
                                 <a href="{{ route('teacher.attendance.index') }}">Attendance</a>
+                                <a href="{{ route('teacher.marks.index') }}">Marks</a>
                                 <a href="{{ route('teacher.announcements') }}">Announcements</a>
                                 <form method="POST" action="{{ route('teacher.logout') }}">
                                     @csrf

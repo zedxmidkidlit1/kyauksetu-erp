@@ -7,6 +7,7 @@ use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\PortalController as StudentPortalController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\AuthController as TeacherAuthController;
+use App\Http\Controllers\Teacher\MarksController as TeacherMarksController;
 use App\Http\Controllers\Teacher\PortalController as TeacherPortalController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,5 +73,8 @@ Route::prefix('teacher')
             Route::post('attendance/sessions', [TeacherAttendanceController::class, 'store'])->name('attendance.sessions.store');
             Route::get('attendance/sessions/{session}', [TeacherAttendanceController::class, 'show'])->name('attendance.sessions.show');
             Route::post('attendance/sessions/{session}/records', [TeacherAttendanceController::class, 'updateRecords'])->name('attendance.sessions.records.update');
+            Route::get('marks', [TeacherMarksController::class, 'index'])->name('marks.index');
+            Route::get('marks/components/{component}', [TeacherMarksController::class, 'show'])->name('marks.components.show');
+            Route::post('marks/components/{component}/students', [TeacherMarksController::class, 'updateStudents'])->name('marks.components.students.update');
         });
     });
