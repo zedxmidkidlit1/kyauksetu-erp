@@ -8,7 +8,7 @@ use App\Services\Kai\Contracts\AiResponder;
 class KaiResponder
 {
     public function __construct(
-        private readonly StudentContextBuilder $contextBuilder,
+        private readonly KaiContextResolver $contextResolver,
         private readonly AiResponder $aiResponder,
         private readonly KaiChatLogger $chatLogger,
     ) {}
@@ -18,7 +18,7 @@ class KaiResponder
      */
     public function respondFor(User $user, string $message, ?string $requestId = null): array
     {
-        $context = $this->contextBuilder->buildFor($user);
+        $context = $this->contextResolver->buildFor($user);
         $response = $this->aiResponder->respond($message, $context, $user);
 
         $payload = [
