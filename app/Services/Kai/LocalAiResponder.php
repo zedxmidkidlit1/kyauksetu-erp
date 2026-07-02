@@ -2,6 +2,7 @@
 
 namespace App\Services\Kai;
 
+use App\Models\User;
 use App\Services\Kai\Contracts\AiResponder;
 use Illuminate\Support\Str;
 
@@ -11,9 +12,9 @@ class LocalAiResponder implements AiResponder
      * @param  array<string, mixed>  $context
      * @return array{reply: string, suggestions: array<int, string>}
      */
-    public function respond(string $message, array $context): array
+    public function respond(string $message, array $context, ?User $user = null): array
     {
-        $normalizedMessage = Str::of($message)->lower();
+        $normalizedMessage = Str::of($message)->lower()->toString();
 
         return [
             'reply' => $this->replyFor($normalizedMessage, $context),

@@ -60,6 +60,10 @@ class KaiProviderTest extends TestCase
 
     public function test_external_driver_config_path_uses_laravel_ai_sdk(): void
     {
+        $user = User::factory()->make([
+            'name' => 'KAI Provider Student',
+        ]);
+
         config([
             'kai.responder' => 'external',
             'kai.provider.enabled' => true,
@@ -76,6 +80,8 @@ class KaiProviderTest extends TestCase
         $response = app(AiResponder::class)->respond('Show my timetable', [
             'student_profile' => [
                 'student_no' => 'KAI-STU-001',
+                'id' => 12345,
+                'permissions' => ['raw-permission-data'],
             ],
             'today_upcoming_timetable' => [
                 'count' => 1,
@@ -83,7 +89,7 @@ class KaiProviderTest extends TestCase
                     ['course' => 'Physics', 'starts_at' => '09:00'],
                 ],
             ],
-        ]);
+        ], $user);
 
         $this->assertSame('Your KAI provider reply is ready.', $response['reply']);
         $this->assertSame([
@@ -94,7 +100,10 @@ class KaiProviderTest extends TestCase
 
         AnonymousAgent::assertPrompted(function ($prompt): bool {
             return $prompt->contains('Show my timetable')
+                && $prompt->contains('context_summary')
                 && $prompt->contains('student_profile')
+                && ! $prompt->contains('12345')
+                && ! $prompt->contains('raw-permission-data')
                 && $prompt->provider()->name() === 'openai'
                 && $prompt->model === 'kai-test-model';
         });

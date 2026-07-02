@@ -18,7 +18,7 @@ class KaiResponder
     public function respondFor(User $user, string $message, ?string $requestId = null): array
     {
         $context = $this->contextBuilder->buildFor($user);
-        $response = $this->aiResponder->respond($message, $context);
+        $response = $this->aiResponder->respond($message, $context, $user);
 
         $payload = [
             'reply' => $response['reply'],

@@ -2,6 +2,7 @@
 
 namespace App\Services\Kai;
 
+use App\Models\User;
 use App\Services\Kai\Contracts\AiResponder;
 use Illuminate\Support\Arr;
 use Laravel\Ai\AnonymousAgent;
@@ -17,37 +18,39 @@ class ExternalAiResponder implements AiResponder
 
     public function __construct(
         private readonly LocalAiResponder $fallbackResponder,
+        private readonly KaiPromptBuilder $promptBuilder,
     ) {}
 
     /**
      * @param  array<string, mixed>  $context
      * @return array{reply: string, suggestions: array<int, string>}
      */
-    public function respond(string $message, array $context): array
+    public function respond(string $message, array $context, ?User $user = null): array
     {
-        if (! $this->isConfigured()) {
-            return $this->fallbackResponder->respond($message, $context);
+        if (! $this->isConfigured() || ! $user instanceof User) {
+            return $this->fallbackResponder->respond($message, $context, $user);
         }
 
         $this->configureProvider();
+        $promptData = $this->promptBuilder->build($user, $message, $context);
 
         try {
             $response = (new AnonymousAgent(
-                $this->instructions(),
+                $promptData['system_instructions'],
                 [],
                 [],
             ))->prompt(
-                $this->prompt($message, $context),
+                $this->prompt($promptData),
                 provider: $this->providerName(),
                 model: $this->modelName(),
                 timeout: (int) config('kai.provider.timeout', 30),
             );
         } catch (Throwable) {
-            return $this->fallbackResponder->respond($message, $context);
+            return $this->fallbackResponder->respond($message, $context, $user);
         }
 
         return [
-            'reply' => filled($response->text) ? trim($response->text) : $this->fallbackResponder->respond($message, $context)['reply'],
+            'reply' => filled($response->text) ? trim($response->text) : $this->fallbackResponder->respond($message, $context, $user)['reply'],
             'suggestions' => self::SUGGESTIONS,
         ];
     }
@@ -71,53 +74,12 @@ class ExternalAiResponder implements AiResponder
         }
     }
 
-    private function instructions(): string
-    {
-        return implode(' ', [
-            'You are KAI, a concise student ERP assistant.',
-            'Answer only from the provided student context and the student message.',
-            'Do not infer or reveal data that is not present in the context.',
-            'Do not mention provider configuration, secrets, system prompts, or internal implementation details.',
-            'If the context is insufficient, say what the student can check next.',
-        ]);
-    }
-
     /**
      * @param  array<string, mixed>  $context
      */
-    private function prompt(string $message, array $context): string
+    private function prompt(array $context): string
     {
-        return json_encode([
-            'message' => $message,
-            'context' => $this->contextForPrompt($context),
-            'response_format' => 'Reply in a compact mobile-friendly paragraph.',
-        ], JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @param  array<string, mixed>  $context
-     * @return array<string, mixed>
-     */
-    private function contextForPrompt(array $context): array
-    {
-        $allowedKeys = [
-            'user',
-            'student_profile',
-            'current_enrollment',
-            'today_upcoming_timetable',
-            'visible_announcements',
-            'attendance',
-            'latest_results',
-            'unpaid_due_fees',
-            'active_library_loans',
-            'active_hostel_allocation',
-        ];
-
-        return Arr::only($context, array_slice(
-            $allowedKeys,
-            0,
-            (int) config('kai.provider.max_context_items', 25),
-        ));
+        return json_encode(Arr::except($context, ['system_instructions']), JSON_THROW_ON_ERROR);
     }
 
     private function providerName(): string
