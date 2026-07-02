@@ -2,10 +2,6 @@
 
 namespace App\Services\Kai\Contracts;
 
-use App\Services\Kai\LocalAiResponder;
-use Illuminate\Container\Attributes\Bind;
-
-#[Bind(LocalAiResponder::class)]
 interface AiResponder
 {
     /**
