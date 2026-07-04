@@ -49,7 +49,7 @@ class KaiContextTest extends TestCase
 
     public function test_non_student_user_is_blocked(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->create(), ['mobile']);
 
         $this
             ->getJson('/api/v1/kai/context')
@@ -62,7 +62,7 @@ class KaiContextTest extends TestCase
 
         [$user] = $this->createStudentDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->getJson('/api/v1/kai/context')
@@ -86,7 +86,7 @@ class KaiContextTest extends TestCase
         [$user] = $this->createStudentDataset('OWN');
         $this->createStudentDataset('OTHER');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $response = $this
             ->getJson('/api/v1/kai/context')

@@ -25,7 +25,7 @@ class KaiChatLoggingTest extends TestCase
     {
         $user = $this->createStudentUser('LOG');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->withHeader('X-Request-Id', 'req-log-001')
@@ -56,7 +56,7 @@ class KaiChatLoggingTest extends TestCase
     {
         $user = $this->createStudentUser('SAFE');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'api_key=secret-provider-key Show my fees'])
@@ -88,10 +88,10 @@ class KaiChatLoggingTest extends TestCase
         $firstUser = $this->createStudentUser('ONE');
         $secondUser = $this->createStudentUser('TWO');
 
-        Sanctum::actingAs($firstUser);
+        Sanctum::actingAs($firstUser, ['mobile']);
         $this->postJson('/api/v1/kai/chat', ['message' => 'Show my timetable'])->assertOk();
 
-        Sanctum::actingAs($secondUser);
+        Sanctum::actingAs($secondUser, ['mobile']);
         $this->postJson('/api/v1/kai/chat', ['message' => 'Show my timetable'])->assertOk();
 
         $firstSession = KaiChatSession::query()->whereBelongsTo($firstUser)->sole();
@@ -120,7 +120,7 @@ class KaiChatLoggingTest extends TestCase
 
         $user = $this->createStudentUser('EXT');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Hello external KAI'])
@@ -149,7 +149,7 @@ class KaiChatLoggingTest extends TestCase
     {
         $user = $this->createStudentUser('JSON');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Hello KAI'])

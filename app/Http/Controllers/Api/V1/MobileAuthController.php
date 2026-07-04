@@ -30,7 +30,7 @@ class MobileAuthController extends Controller
         $this->abortUnlessSupportedMobileRole($user);
 
         $token = $user
-            ->createToken($validated['device_name'] ?? 'KAI Mobile App', ['*'])
+            ->createToken($validated['device_name'] ?? 'KAI Mobile App', ['mobile'])
             ->plainTextToken;
 
         return response()->json([

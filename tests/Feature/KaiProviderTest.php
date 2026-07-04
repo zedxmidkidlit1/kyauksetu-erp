@@ -113,7 +113,7 @@ class KaiProviderTest extends TestCase
     {
         $user = $this->createStudentUser();
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Hello KAI'])

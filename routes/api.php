@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\KaiChatController;
 use App\Http\Controllers\Api\V1\KaiContextController;
 use App\Http\Controllers\Api\V1\MobileAuthController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\StudentDataController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,15 +17,18 @@ Route::prefix('v1')
 
 Route::prefix('v1')
     ->name('api.v1.')
-    ->middleware('auth:sanctum')
+    ->middleware(['auth:sanctum', 'ability:mobile'])
     ->group(function (): void {
-        Route::get('auth/me', [MobileAuthController::class, 'me'])->name('auth.me');
-        Route::post('auth/logout', [MobileAuthController::class, 'logout'])->name('auth.logout');
+        Route::middleware('mobile.role:student,teacher')->group(function (): void {
+            Route::get('auth/me', [MobileAuthController::class, 'me'])->name('auth.me');
+            Route::post('auth/logout', [MobileAuthController::class, 'logout'])->name('auth.logout');
 
-        Route::post('kai/chat', KaiChatController::class)->name('kai.chat');
-        Route::get('kai/context', KaiContextController::class)->name('kai.context');
+            Route::post('kai/chat', KaiChatController::class)->name('kai.chat');
+            Route::get('kai/context', KaiContextController::class)->name('kai.context');
+            Route::get('notifications', NotificationController::class)->name('notifications.index');
+        });
 
-        Route::controller(StudentDataController::class)->group(function (): void {
+        Route::middleware('mobile.role:student')->controller(StudentDataController::class)->group(function (): void {
             Route::get('me', 'me')->name('me');
             Route::get('my-profile', 'myProfile')->name('my-profile');
             Route::get('my-enrollment', 'myEnrollment')->name('my-enrollment');

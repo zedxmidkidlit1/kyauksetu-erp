@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\StudentDataQueryRequest;
 use App\Http\Resources\Api\V1\AnnouncementResource;
 use App\Http\Resources\Api\V1\AttendanceRecordResource;
 use App\Http\Resources\Api\V1\CurrentUserResource;
@@ -13,7 +14,6 @@ use App\Http\Resources\Api\V1\StudentEnrollmentResource;
 use App\Http\Resources\Api\V1\StudentFeeResource;
 use App\Http\Resources\Api\V1\StudentProfileResource;
 use App\Http\Resources\Api\V1\TimetableResource;
-use App\Models\Announcement;
 use App\Models\AttendanceRecord;
 use App\Models\HostelAllocation;
 use App\Models\LibraryLoan;
@@ -23,10 +23,11 @@ use App\Models\StudentFee;
 use App\Models\StudentProfile;
 use App\Models\Timetable;
 use App\Models\User;
+use App\Services\Mobile\VisibleAnnouncementQuery;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class StudentDataController extends Controller
 {
@@ -47,93 +48,96 @@ class StudentDataController extends Controller
         );
     }
 
-    public function myTimetable(Request $request): AnonymousResourceCollection
+    public function myTimetable(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $currentEnrollment = $this->currentEnrollment($this->currentStudentProfile($request));
 
         return TimetableResource::collection(
-            $currentEnrollment ? $this->studentTimetables($currentEnrollment) : collect(),
+            $currentEnrollment
+                ? $this->applyDateRange($this->studentTimetables($currentEnrollment), $request, 'effective_from')->paginate($request->perPage())
+                : $this->emptyPaginator($request),
         );
     }
 
-    public function myAttendance(Request $request): AnonymousResourceCollection
+    public function myAttendance(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
 
         return AttendanceRecordResource::collection(
-            AttendanceRecord::query()
+            $this->applyDateRange(AttendanceRecord::query()
                 ->whereIn('student_enrollment_id', $this->studentEnrollmentIds($profile))
                 ->with(['attendanceSession.course', 'attendanceSession.teacherProfile.user', 'attendanceSession.room', 'studentEnrollment'])
                 ->latest('marked_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'marked_at')
+                ->paginate($request->perPage()),
         );
     }
 
-    public function myResults(Request $request): AnonymousResourceCollection
+    public function myResults(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
 
         return StudentCourseResultResource::collection(
-            $this->studentResults($profile)
+            $this->applyDateRange($this->studentResults($profile)
                 ->with(['academicYear', 'semester', 'course', 'gradeScale', 'studentEnrollment'])
                 ->latest('approved_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'approved_at')
+                ->paginate($request->perPage()),
         );
     }
 
-    public function myFees(Request $request): AnonymousResourceCollection
+    public function myFees(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
 
         return StudentFeeResource::collection(
-            StudentFee::query()
+            $this->applyDateRange(StudentFee::query()
                 ->whereBelongsTo($profile)
                 ->with(['academicYear', 'semester', 'feeType', 'studentPayments'])
                 ->latest('due_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'due_at')
+                ->paginate($request->perPage()),
         );
     }
 
-    public function myLibrary(Request $request): AnonymousResourceCollection
+    public function myLibrary(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
 
         return LibraryLoanResource::collection(
-            LibraryLoan::query()
+            $this->applyDateRange(LibraryLoan::query()
                 ->whereBelongsTo($profile)
                 ->with(['bookCopy.book'])
                 ->latest('borrowed_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'borrowed_at')
+                ->paginate($request->perPage()),
         );
     }
 
-    public function myHostel(Request $request): AnonymousResourceCollection
+    public function myHostel(StudentDataQueryRequest $request): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
 
         return HostelAllocationResource::collection(
-            HostelAllocation::query()
+            $this->applyDateRange(HostelAllocation::query()
                 ->whereBelongsTo($profile)
                 ->with(['hostel', 'hostelRoom', 'hostelBed'])
                 ->latest('allocated_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'allocated_at')
+                ->paginate($request->perPage()),
         );
     }
 
-    public function announcements(Request $request): AnonymousResourceCollection
+    public function announcements(StudentDataQueryRequest $request, VisibleAnnouncementQuery $announcements): AnonymousResourceCollection
     {
         $profile = $this->currentStudentProfile($request);
+        $user = $profile->user;
 
         return AnnouncementResource::collection(
-            $this->studentAnnouncements($profile, $request)
+            $this->applyDateRange($announcements->forUser($user)
                 ->latest('publish_at')
-                ->latest()
-                ->get(),
+                ->latest(), $request, 'publish_at')
+                ->paginate($request->perPage()),
         );
     }
 
@@ -163,10 +167,7 @@ class StudentDataController extends Controller
             ->first();
     }
 
-    /**
-     * @return Collection<int, Timetable>
-     */
-    private function studentTimetables(StudentEnrollment $enrollment): Collection
+    private function studentTimetables(StudentEnrollment $enrollment): Builder
     {
         return Timetable::query()
             ->where('academic_year_id', $enrollment->academic_year_id)
@@ -179,8 +180,7 @@ class StudentDataController extends Controller
                     ->where('major_id', $enrollment->major_id),
             )
             ->with(['academicYear', 'semester', 'program', 'major', 'classSection', 'slots.course', 'slots.teacherProfile.user', 'slots.room'])
-            ->orderBy('effective_from')
-            ->get();
+            ->orderBy('effective_from');
     }
 
     /**
@@ -197,65 +197,30 @@ class StudentDataController extends Controller
             ->whereIn('student_enrollment_id', $this->studentEnrollmentIds($profile));
     }
 
-    private function studentAnnouncements(StudentProfile $profile, Request $request): Builder
+    private function applyDateRange(Builder $query, StudentDataQueryRequest $request, string $column): Builder
     {
-        return Announcement::query()
-            ->where('status', 'published')
-            ->where(function (Builder $query): void {
-                $query
-                    ->whereNull('publish_at')
-                    ->orWhere('publish_at', '<=', now());
-            })
-            ->where(function (Builder $query): void {
-                $query
-                    ->whereNull('expires_at')
-                    ->orWhere('expires_at', '>=', now());
-            })
-            ->whereHas('audiences', function (Builder $query) use ($profile, $request): void {
-                $query
-                    ->where('audience_type', 'all')
-                    ->orWhere(function (Builder $query): void {
-                        $query
-                            ->where('audience_type', 'role')
-                            ->where('role_name', 'student');
-                    })
-                    ->orWhere(function (Builder $query) use ($request): void {
-                        $query
-                            ->where('audience_type', 'user')
-                            ->where('user_id', $request->user()?->id);
-                    });
+        if ($request->filled('from')) {
+            $query->whereDate($column, '>=', $request->date('from'));
+        }
 
-                if ($profile->department_id) {
-                    $query->orWhere(function (Builder $query) use ($profile): void {
-                        $query
-                            ->where('audience_type', 'department')
-                            ->where('department_id', $profile->department_id);
-                    });
-                }
+        if ($request->filled('to')) {
+            $query->whereDate($column, '<=', $request->date('to'));
+        }
 
-                if ($profile->program_id) {
-                    $query->orWhere(function (Builder $query) use ($profile): void {
-                        $query
-                            ->where('audience_type', 'program')
-                            ->where('program_id', $profile->program_id);
-                    });
-                }
+        return $query;
+    }
 
-                if ($profile->major_id) {
-                    $query->orWhere(function (Builder $query) use ($profile): void {
-                        $query
-                            ->where('audience_type', 'major')
-                            ->where('major_id', $profile->major_id);
-                    });
-                }
-
-                if ($profile->class_section_id) {
-                    $query->orWhere(function (Builder $query) use ($profile): void {
-                        $query
-                            ->where('audience_type', 'class_section')
-                            ->where('class_section_id', $profile->class_section_id);
-                    });
-                }
-            });
+    private function emptyPaginator(StudentDataQueryRequest $request): LengthAwarePaginator
+    {
+        return new LengthAwarePaginator(
+            items: [],
+            total: 0,
+            perPage: $request->perPage(),
+            currentPage: $request->integer('page', 1),
+            options: [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ],
+        );
     }
 }

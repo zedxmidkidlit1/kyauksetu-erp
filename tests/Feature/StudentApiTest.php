@@ -69,7 +69,7 @@ class StudentApiTest extends TestCase
     {
         [$user] = $this->createStudentDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         foreach (self::ENDPOINTS as $endpoint) {
             $this
@@ -81,7 +81,7 @@ class StudentApiTest extends TestCase
 
     public function test_authenticated_user_without_student_profile_is_forbidden(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->create(), ['mobile']);
 
         $this
             ->getJson('/api/v1/my-profile')
@@ -93,7 +93,7 @@ class StudentApiTest extends TestCase
         [$user] = $this->createStudentDataset('OWN');
         $this->createStudentDataset('OTHER');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->getJson('/api/v1/my-profile')

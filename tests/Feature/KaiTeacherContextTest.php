@@ -41,7 +41,7 @@ class KaiTeacherContextTest extends TestCase
     {
         $user = $this->createStudentUser('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->getJson('/api/v1/kai/context')
@@ -61,7 +61,7 @@ class KaiTeacherContextTest extends TestCase
 
         [$user] = $this->createTeacherDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->getJson('/api/v1/kai/context')
@@ -82,7 +82,7 @@ class KaiTeacherContextTest extends TestCase
         [$user] = $this->createTeacherDataset('OWN');
         $this->createTeacherDataset('OTHER');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $content = $this
             ->getJson('/api/v1/kai/context')
@@ -104,7 +104,7 @@ class KaiTeacherContextTest extends TestCase
 
         [$user] = $this->createTeacherDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Show my teaching schedule'])
@@ -117,7 +117,7 @@ class KaiTeacherContextTest extends TestCase
 
     public function test_unsupported_role_is_blocked_from_kai_context_and_chat(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->create(), ['mobile']);
 
         $this->getJson('/api/v1/kai/context')->assertForbidden();
         $this->postJson('/api/v1/kai/chat', ['message' => 'Hello KAI'])->assertForbidden();

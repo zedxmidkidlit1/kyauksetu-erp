@@ -49,7 +49,7 @@ class KaiChatTest extends TestCase
 
     public function test_non_student_user_is_blocked(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->create(), ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Show my fees'])
@@ -60,7 +60,7 @@ class KaiChatTest extends TestCase
     {
         [$user] = $this->createStudentDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->postJson('/api/v1/kai/chat', [])
@@ -74,7 +74,7 @@ class KaiChatTest extends TestCase
 
         [$user] = $this->createStudentDataset('OWN');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $this
             ->withHeader('X-Request-Id', 'req-kai-test')
@@ -94,7 +94,7 @@ class KaiChatTest extends TestCase
         [$user] = $this->createStudentDataset('OWN');
         $this->createStudentDataset('OTHER');
 
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($user, ['mobile']);
 
         $response = $this
             ->postJson('/api/v1/kai/chat', ['message' => 'Show my timetable'])
