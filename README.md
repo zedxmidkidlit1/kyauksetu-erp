@@ -9,9 +9,9 @@
 ![PHPUnit](https://img.shields.io/badge/PHPUnit-12.x-3A6E35?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-Kyauksetu ERP is a Laravel university ERP and KAI backend MVP. The current system combines a Filament admin panel, applicant/student/teacher web portals, Sanctum mobile authentication, and KAI context/chat APIs over a modular ERP data foundation.
+Kyauksetu ERP is a Laravel university ERP and KAI backend MVP. The current system combines a Filament admin panel, applicant/student/teacher web portals, Sanctum mobile authentication, announcement-backed mobile notifications, and KAI context/chat APIs over a modular ERP data foundation.
 
-The project is currently **demo-ready MVP stage**: seeded demo data supports the core admin, applicant, student, teacher, and KAI API journeys described in [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). A concise MVP review is available in [docs/MVP_REVIEW.md](docs/MVP_REVIEW.md).
+The project is currently **demo-ready MVP stage** with a verified backend API for the `kai-flutter` MVP integration. Seeded demo data supports the core admin, applicant, student, teacher, mobile API, and KAI journeys described in [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). The mobile API contract is available in [docs/MOBILE_API_CONTRACT.md](docs/MOBILE_API_CONTRACT.md), and a concise MVP review is available in [docs/MVP_REVIEW.md](docs/MVP_REVIEW.md).
 
 ## Table of Contents
 
@@ -44,13 +44,15 @@ The project is currently **demo-ready MVP stage**: seeded demo data supports the
 | Teacher portal | Implemented | Profile, assignments, timetable, classes, announcements, attendance, marks |
 | Teacher attendance workflow | Implemented | Own-assignment attendance sessions and records |
 | Teacher marks workflow | Implemented | Own-assignment assessment components and student marks |
-| Mobile auth API | Implemented | Sanctum bearer-token login for supported student/teacher accounts |
-| KAI context/chat API | Implemented | Scoped context and local chat responder by default |
+| Mobile auth API | Verified ready | Sanctum bearer-token login for supported student/teacher accounts with `mobile` token ability |
+| Mobile student data API | Verified ready | Student profile, enrollment, timetable, attendance, results, fees, library, hostel, and announcements |
+| Mobile notifications API | Implemented | Announcement-backed `/api/v1/notifications` feed for supported mobile roles |
+| KAI context/chat API | Verified ready | Scoped student/teacher context and local chat responder by default |
 | Laravel AI SDK foundation | Implemented | External provider config foundation and smoke command |
 | KAI logging/admin review | Implemented | Chat sessions/messages available for admin review |
 | Demo data and flow | Implemented | Demo accounts and seeded story in `docs/DEMO_FLOW.md` |
-| Flutter app | Not implemented | Recommended next phase |
-| Notifications | Not implemented | Recommended next phase |
+| Flutter app | Not implemented here | Laravel backend is ready for the `kai-flutter` MVP API integration |
+| Push notifications | Not implemented | Current mobile notifications are API feed items, not FCM/APNs push delivery |
 | SSO | Not implemented | Identity mapping foundation exists, login behavior is not enabled |
 
 ## Application Surfaces
@@ -62,6 +64,8 @@ The project is currently **demo-ready MVP stage**: seeded demo data supports the
 | Student Portal | `/student/login` | Student profile, academic activity, fees, library, hostel, announcements |
 | Teacher Portal | `/teacher/login` | Teacher assignments, classes, attendance, marks, announcements |
 | Mobile Auth API | `/api/v1/auth/login` | Sanctum token login for mobile/KAI clients |
+| Mobile Student API | `/api/v1/my-profile` | Student profile and paginated student data endpoints |
+| Mobile Notifications API | `/api/v1/notifications` | Announcement-backed notification feed |
 | KAI Context API | `/api/v1/kai/context` | Permission-safe student/teacher context |
 | KAI Chat API | `/api/v1/kai/chat` | Local KAI responder by default, external AI opt-in |
 
@@ -134,12 +138,17 @@ Current roles include:
 
 ### Mobile and KAI APIs
 
-- Sanctum mobile login for student and teacher users.
+- Sanctum mobile login for student and teacher users with mobile-scoped token ability.
+- Protected API routes require a Sanctum token with the `mobile` ability.
+- Student-only API routes enforce student role/profile boundaries.
+- Student list endpoints return paginated API resources with `page`, `per_page`, `from`, and `to` query support.
+- Mobile notifications endpoint exposes visible announcements in a stable feed shape.
 - KAI context endpoint for permission-safe student/teacher context.
 - KAI chat endpoint using the local responder by default.
 - External AI provider configuration foundation through Laravel AI SDK.
 - KAI smoke command for checking local/external responder configuration.
 - KAI chat logging for admin review.
+- Full request/response details for Flutter integration live in [docs/MOBILE_API_CONTRACT.md](docs/MOBILE_API_CONTRACT.md).
 
 ## Demo Flow
 
@@ -244,6 +253,8 @@ erDiagram
 
 - Admin resources are protected through Filament, Laravel policies, and role/permission checks.
 - Portal routes are scoped to the authenticated applicant, student, or teacher.
+- Mobile API routes require Sanctum bearer tokens with the `mobile` ability.
+- Mobile role middleware restricts student-only and student/teacher endpoints.
 - Teacher attendance and marks workflows enforce own-assignment / own-class access.
 - Tests cover important cross-user protection paths.
 - KAI context is assembled from permission-safe user context.
@@ -255,7 +266,7 @@ erDiagram
 
 - No Flutter app yet.
 - External AI is not enabled by default.
-- No notifications yet.
+- No push notification delivery yet; mobile notifications currently use the API feed.
 - No file upload workflow yet.
 - No payment gateway.
 - No SSO login behavior yet.
@@ -300,7 +311,7 @@ cp .env.example .env
 vendor/bin/sail artisan key:generate
 ```
 
-Update database values in `.env` if needed. The active project environment is PostgreSQL-oriented.
+Update database values in `.env` if needed. The active project environment is Sail/PostgreSQL-oriented. For Android emulator testing, use `http://10.0.2.2/api/v1` as the Flutter base URL when Sail exposes the app on port 80.
 
 ### Run migrations and core seeders
 
@@ -349,6 +360,14 @@ Check KAI responder configuration:
 vendor/bin/sail artisan kai:smoke
 ```
 
+Check mobile API routes:
+
+```bash
+vendor/bin/sail artisan route:list --path=api --except-vendor
+```
+
+The current verified readiness baseline is 77 passing tests, 391 assertions, 16 `/api/v1` routes, and successful manual curl checks for login, authenticated profile data, announcements, notifications, KAI chat, invalid-token rejection, and student-only role blocking.
+
 Audit Composer dependencies:
 
 ```bash
@@ -376,6 +395,7 @@ database/
   seeders/               IAM, smoke, and demo seeders
 docs/
   DEMO_FLOW.md           Demo journey source of truth
+  MOBILE_API_CONTRACT.md Flutter/mobile API contract
   MVP_REVIEW.md          Current MVP review
 routes/
   api.php                Mobile and KAI API routes
