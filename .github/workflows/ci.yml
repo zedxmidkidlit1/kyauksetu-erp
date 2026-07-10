@@ -29,7 +29,7 @@ jobs:
           --volume "$PWD:/var/www/html"
           --workdir /var/www/html
           --env COMPOSER_HOME=/tmp/composer
-          laravelsail/php85-composer:latest
+          laravelsail/php84-composer:latest
           composer install --no-interaction --prefer-dist --no-progress
 
       - name: Configure application
