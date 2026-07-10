@@ -139,6 +139,7 @@ class AttendanceController extends Controller
         return TeachingAssignment::query()
             ->whereBelongsTo($profile)
             ->whereNotNull('class_section_id')
+            ->where('status', 'active')
             ->with(['academicYear', 'semester', 'classSection', 'course']);
     }
 
@@ -163,9 +164,17 @@ class AttendanceController extends Controller
     private function ensureRecordsForSession(AttendanceSession $session, int $markedBy): void
     {
         StudentEnrollment::query()
+            ->where('academic_year_id', $session->academic_year_id)
+            ->when(
+                $session->semester_id,
+                fn (Builder $query) => $query->where('semester_id', $session->semester_id),
+                fn (Builder $query) => $query->whereNull('semester_id'),
+            )
             ->where('class_section_id', $session->class_section_id)
-            ->with('studentProfile')
+            ->where('status', 'active')
+            ->whereHas('studentProfile', fn (Builder $query) => $query->where('status', 'active'))
             ->orderBy('roll_no')
+            ->lockForUpdate()
             ->get()
             ->each(function (StudentEnrollment $enrollment) use ($session, $markedBy): void {
                 AttendanceRecord::firstOrCreate(

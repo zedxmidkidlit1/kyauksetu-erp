@@ -5,6 +5,8 @@ namespace App\Filament\Widgets;
 use App\Models\Announcement;
 use App\Models\ExamSchedule;
 use App\Models\TimetableSlot;
+use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +21,16 @@ class TodayUpcomingAcademicActivity extends StatsOverviewWidget
     protected static ?int $sort = 70;
 
     protected ?string $pollingInterval = null;
+
+    public static function canView(): bool
+    {
+        $user = Filament::auth()->user();
+
+        return $user instanceof User
+            && $user->can('timetables.view')
+            && $user->can('exam_schedules.view')
+            && $user->can('announcements.view');
+    }
 
     protected function getStats(): array
     {

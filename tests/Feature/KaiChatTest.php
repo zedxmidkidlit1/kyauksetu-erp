@@ -108,6 +108,18 @@ class KaiChatTest extends TestCase
         }
     }
 
+    public function test_kai_chat_is_rate_limited_per_authenticated_user_and_ip_address(): void
+    {
+        config(['rate_limits.kai_chat_per_minute' => 2]);
+        [$user] = $this->createStudentDataset('RATE');
+
+        Sanctum::actingAs($user, ['mobile']);
+
+        $this->postJson('/api/v1/kai/chat', ['message' => 'Hello KAI'])->assertOk();
+        $this->postJson('/api/v1/kai/chat', ['message' => 'Hello again'])->assertOk();
+        $this->postJson('/api/v1/kai/chat', ['message' => 'One more'])->assertTooManyRequests();
+    }
+
     /**
      * @return array{0: User, 1: StudentProfile, 2: StudentEnrollment}
      */

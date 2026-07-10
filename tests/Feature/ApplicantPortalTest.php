@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Models\AdmissionApplication;
 use App\Models\AdmissionBatch;
 use App\Models\Applicant;
+use App\Models\Department;
+use App\Models\Major;
+use App\Models\Program;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,6 +90,152 @@ class ApplicantPortalTest extends TestCase
             ->actingAs($user)
             ->get(route('applicant.applications.show', $application))
             ->assertForbidden();
+    }
+
+    public function test_applicant_cannot_apply_outside_the_batch_window(): void
+    {
+        $this->travelTo('2026-07-10 12:00:00');
+        [$user] = $this->createApplicantUser('window@example.test');
+        $batch = AdmissionBatch::create([
+            'name' => 'Future Intake',
+            'opens_at' => '2026-07-11',
+            'closes_at' => '2026-07-31',
+            'status' => 'open',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->post(route('applicant.applications.store'), [
+                'admission_batch_id' => $batch->id,
+            ])
+            ->assertSessionHasErrors('admission_batch_id');
+
+        $this->assertDatabaseMissing('admission_applications', [
+            'admission_batch_id' => $batch->id,
+        ]);
+    }
+
+    public function test_applicant_cannot_submit_the_same_programless_application_twice(): void
+    {
+        [$user, $applicant] = $this->createApplicantUser('duplicate@example.test');
+        $batch = AdmissionBatch::create([
+            'name' => 'General Intake',
+            'status' => 'open',
+        ]);
+
+        $this->actingAs($user)->post(route('applicant.applications.store'), [
+            'admission_batch_id' => $batch->id,
+        ])->assertRedirect();
+
+        $this->actingAs($user)->post(route('applicant.applications.store'), [
+            'admission_batch_id' => $batch->id,
+        ])->assertSessionHasErrors([
+            'admission_batch_id' => 'You already have an application for this batch and program.',
+        ]);
+
+        $applications = AdmissionApplication::query()
+            ->whereBelongsTo($applicant)
+            ->whereBelongsTo($batch)
+            ->get();
+
+        $this->assertCount(1, $applications);
+        $this->assertNull($applications->sole()->program_id);
+    }
+
+    public function test_applicant_cannot_apply_to_a_batch_for_an_inactive_program(): void
+    {
+        [$user] = $this->createApplicantUser('inactive-program@example.test');
+        $program = Program::create([
+            'name' => 'Retired Program',
+            'code' => 'RETIRED',
+            'duration_years' => 4,
+            'status' => 'inactive',
+        ]);
+        $batch = AdmissionBatch::create([
+            'program_id' => $program->id,
+            'name' => 'Retired Intake',
+            'status' => 'open',
+        ]);
+
+        $this->actingAs($user)->post(route('applicant.applications.store'), [
+            'admission_batch_id' => $batch->id,
+        ])->assertSessionHasErrors('admission_batch_id');
+
+        $this->assertDatabaseMissing('admission_applications', [
+            'admission_batch_id' => $batch->id,
+        ]);
+    }
+
+    public function test_applicant_cannot_override_a_batch_program(): void
+    {
+        [$user] = $this->createApplicantUser('program@example.test');
+        $batchProgram = Program::create([
+            'name' => 'Engineering',
+            'code' => 'ENG',
+            'duration_years' => 4,
+            'status' => 'active',
+        ]);
+        $otherProgram = Program::create([
+            'name' => 'Business',
+            'code' => 'BUS',
+            'duration_years' => 4,
+            'status' => 'active',
+        ]);
+        $batch = AdmissionBatch::create([
+            'program_id' => $batchProgram->id,
+            'name' => 'Engineering Intake',
+            'status' => 'open',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->post(route('applicant.applications.store'), [
+                'admission_batch_id' => $batch->id,
+                'program_id' => $otherProgram->id,
+            ])
+            ->assertSessionHasErrors('program_id');
+    }
+
+    public function test_applicant_cannot_select_a_major_from_another_program(): void
+    {
+        [$user] = $this->createApplicantUser('major@example.test');
+        $department = Department::create([
+            'name' => 'Technology',
+            'code' => 'TECH',
+            'is_active' => true,
+        ]);
+        $batchProgram = Program::create([
+            'name' => 'Engineering',
+            'code' => 'ENG-MAJOR',
+            'duration_years' => 4,
+            'status' => 'active',
+        ]);
+        $otherProgram = Program::create([
+            'name' => 'Business',
+            'code' => 'BUS-MAJOR',
+            'duration_years' => 4,
+            'status' => 'active',
+        ]);
+        $otherMajor = Major::create([
+            'department_id' => $department->id,
+            'program_id' => $otherProgram->id,
+            'name' => 'Accounting',
+            'code' => 'ACC',
+            'status' => 'active',
+        ]);
+        $batch = AdmissionBatch::create([
+            'program_id' => $batchProgram->id,
+            'name' => 'Engineering Intake',
+            'status' => 'open',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->post(route('applicant.applications.store'), [
+                'admission_batch_id' => $batch->id,
+                'major_id' => $otherMajor->id,
+            ])
+            ->assertSessionHasErrors('major_id');
     }
 
     /**

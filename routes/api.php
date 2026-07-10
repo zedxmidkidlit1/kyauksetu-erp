@@ -11,7 +11,7 @@ Route::prefix('v1')
     ->name('api.v1.')
     ->group(function (): void {
         Route::post('auth/login', [MobileAuthController::class, 'login'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:mobile-login')
             ->name('auth.login');
     });
 
@@ -23,7 +23,9 @@ Route::prefix('v1')
             Route::get('auth/me', [MobileAuthController::class, 'me'])->name('auth.me');
             Route::post('auth/logout', [MobileAuthController::class, 'logout'])->name('auth.logout');
 
-            Route::post('kai/chat', KaiChatController::class)->name('kai.chat');
+            Route::post('kai/chat', KaiChatController::class)
+                ->middleware('throttle:kai-chat')
+                ->name('kai.chat');
             Route::get('kai/context', KaiContextController::class)->name('kai.context');
             Route::get('notifications', NotificationController::class)->name('notifications.index');
         });

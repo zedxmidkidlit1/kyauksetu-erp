@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\StudentProfile;
+use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Number;
@@ -16,6 +18,13 @@ class StudentStatusOverview extends StatsOverviewWidget
     protected static ?int $sort = 20;
 
     protected ?string $pollingInterval = null;
+
+    public static function canView(): bool
+    {
+        $user = Filament::auth()->user();
+
+        return $user instanceof User && $user->can('students.view');
+    }
 
     protected function getStats(): array
     {

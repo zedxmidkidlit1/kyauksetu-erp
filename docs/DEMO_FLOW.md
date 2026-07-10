@@ -6,6 +6,8 @@ Run the demo data seeder in a non-production environment:
 vendor/bin/sail artisan db:seed --class=DemoDataSeeder
 ```
 
+This is a demo-ready MVP flow. Until the Filament access and role-permission blockers in `docs/MVP_REVIEW.md` are fixed, use only the `super_admin` account for `/admin`. Do not present the seeded registrar account as a working back-office role.
+
 ## Demo Credentials
 
 All demo accounts use the password `DemoPass123!`.
@@ -13,7 +15,7 @@ All demo accounts use the password `DemoPass123!`.
 | Role | Email | Purpose |
 | --- | --- | --- |
 | Super admin | `demo.admin@kyauksetu.test` | Admin review across ERP modules |
-| Admission officer | `demo.admissions@kyauksetu.test` | Admission demo account using the existing registrar role |
+| Admission officer | `demo.admissions@kyauksetu.test` | Seeded registrar account reserved for future role-permission verification |
 | Teacher | `demo.teacher@kyauksetu.test` | Teacher portal, timetable, attendance, marks |
 | Student | `demo.student@kyauksetu.test` | Student portal and KAI mobile/API context |
 | Applicant | `demo.applicant@kyauksetu.test` | Applicant portal and admission application |
@@ -24,6 +26,8 @@ All demo accounts use the password `DemoPass123!`.
 2. Review the academic foundation: academic year `2026-2027 Demo`, semester `Semester 1 Demo`, department `CSE-DEMO`, program `BTECH-DEMO`, major `CSE-DEMO`, class section `CSE First Year - Section A`, and course `CSE-101-DEMO`.
 3. Review admissions: batch `DEMO-ADM-2026`, applicant `DEMO-APP-2026-0001`, application `DEMO-APP-CSE-2026-0001`, and the accepted decision.
 4. Review student flow data: student profile `DEMO-STU-2026-0001`, enrollment, attendance, marks, published result, fee/payment, active library loan, active hostel allocation, and announcements.
+
+Do not use student, teacher, applicant, registrar, or unassigned users for the admin demo. Filament panel entry and widget authorization must be hardened before those access boundaries are considered verified.
 
 ## Applicant Path
 
@@ -73,3 +77,9 @@ curl -s -X POST http://localhost/api/v1/kai/chat \
   -H 'Authorization: Bearer <token>' \
   -d 'message=What should I focus on this week?'
 ```
+
+The `/notifications` endpoint is also available to the demo student and teacher. It returns announcement-backed feed items, not push notifications or unread counts.
+
+## Verification Note
+
+The last documented automated baseline is 77 tests and 391 assertions. Re-run the suite in the current worktree before presenting it as passing; the 2026-07-10 review could not run the suite because Docker/Podman was stopped.

@@ -131,6 +131,80 @@ class TeacherAttendanceWorkflowTest extends TestCase
             ->count());
     }
 
+    public function test_attendance_excludes_inactive_and_academically_mismatched_enrollments(): void
+    {
+        [$user, , $assignment, $eligibleEnrollments] = $this->createTeacherDataset('ELIGIBLE');
+        $assignment->load(['academicYear', 'semester', 'program', 'major.department', 'classSection']);
+
+        $otherSemester = Semester::create([
+            'academic_year_id' => $assignment->academic_year_id,
+            'name' => 'Other Semester',
+            'start_date' => '2026-11-01',
+            'end_date' => '2027-03-31',
+            'status' => 'active',
+        ]);
+        $otherAcademicYear = AcademicYear::create([
+            'name' => '2027-2028 Attendance Eligibility',
+            'start_date' => '2027-06-01',
+            'end_date' => '2028-03-31',
+            'status' => 'active',
+        ]);
+
+        $this->createStudentEnrollment(
+            'INACTIVE-ENROLLMENT',
+            $assignment->major->department,
+            $assignment->program,
+            $assignment->major,
+            $assignment->academicYear,
+            $assignment->semester,
+            $assignment->classSection,
+            enrollmentStatus: 'inactive',
+        );
+        $this->createStudentEnrollment(
+            'INACTIVE-PROFILE',
+            $assignment->major->department,
+            $assignment->program,
+            $assignment->major,
+            $assignment->academicYear,
+            $assignment->semester,
+            $assignment->classSection,
+            profileStatus: 'inactive',
+        );
+        $this->createStudentEnrollment(
+            'OTHER-SEMESTER',
+            $assignment->major->department,
+            $assignment->program,
+            $assignment->major,
+            $assignment->academicYear,
+            $otherSemester,
+            $assignment->classSection,
+        );
+        $this->createStudentEnrollment(
+            'OTHER-YEAR',
+            $assignment->major->department,
+            $assignment->program,
+            $assignment->major,
+            $otherAcademicYear,
+            $assignment->semester,
+            $assignment->classSection,
+        );
+
+        $this
+            ->actingAs($user)
+            ->post(route('teacher.attendance.sessions.store'), [
+                'teaching_assignment_id' => $assignment->id,
+                'session_date' => '2026-07-02',
+            ])
+            ->assertRedirect();
+
+        $session = AttendanceSession::query()->firstOrFail();
+
+        $this->assertEqualsCanonicalizing(
+            $eligibleEnrollments->pluck('id')->all(),
+            $session->records()->pluck('student_enrollment_id')->all(),
+        );
+    }
+
     /**
      * @return array{0: User, 1: TeacherProfile, 2: TeachingAssignment, 3: Collection<int, StudentEnrollment>}
      */
@@ -271,7 +345,9 @@ class TeacherAttendanceWorkflowTest extends TestCase
         Major $major,
         AcademicYear $academicYear,
         Semester $semester,
-        ClassSection $classSection
+        ClassSection $classSection,
+        string $enrollmentStatus = 'active',
+        string $profileStatus = 'active',
     ): StudentEnrollment {
         $studentUser = User::factory()->create([
             'name' => "Student {$suffix}",
@@ -289,7 +365,7 @@ class TeacherAttendanceWorkflowTest extends TestCase
             'academic_year_id' => $academicYear->id,
             'class_section_id' => $classSection->id,
             'admission_year' => 2026,
-            'status' => 'active',
+            'status' => $profileStatus,
             'enrolled_at' => '2026-06-01',
         ]);
 
@@ -302,7 +378,7 @@ class TeacherAttendanceWorkflowTest extends TestCase
             'class_section_id' => $classSection->id,
             'year_level' => 1,
             'roll_no' => "STU-{$suffix}",
-            'status' => 'active',
+            'status' => $enrollmentStatus,
             'enrolled_at' => '2026-06-01',
         ]);
     }

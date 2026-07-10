@@ -1,4 +1,39 @@
 <laravel-boost-guidelines>
+=== project status rules ===
+
+# Kyauksetu ERP Current Status
+
+- This repository is a **demo-ready backend MVP**, not a beta or production-ready system.
+- Treat `README.md` and `docs/MVP_REVIEW.md` as the source of truth for project stage and blockers. Use `docs/DEMO_FLOW.md` for the supported demo and `docs/MOBILE_API_CONTRACT.md` for the mobile contract.
+- Do not claim that tests currently pass unless the suite has been run successfully in the current worktree. The historical baseline is 77 tests and 391 assertions, but it must be re-verified through Sail.
+- Demo credentials and `DemoDataSeeder` are for non-production use only. Do not add or retain predictable default users in shared, staging, or production environments.
+
+## Verification Gate Before Feature Expansion
+
+The first hardening implementation now includes explicit Filament/widget access, removal of the default seeded user, an operational role matrix, admissions and attendance integrity checks, named rate limits, sanitized KAI provider reporting, focused tests, and CI. Do not treat these items as complete or call the project beta until:
+
+1. Docker/Sail is available and Pint has formatted the changed PHP files.
+2. The focused hardening tests and the full PHPUnit suite pass in the current worktree.
+3. The new CI workflow passes, including migrations, frontend build, formatting, tests, and dependency audit.
+4. The role-permission matrix receives stakeholder approval for its intended global access boundaries.
+5. The supported demo is manually re-checked with super-admin, registrar, applicant, student, and teacher accounts.
+
+## Security and Data Integrity
+
+- Filament `canAccessPanel()` must use an explicit allow-list of administrative/back-office roles. Resource policies alone do not protect dashboard widgets.
+- Every new Filament widget must implement an authorization-aware visibility rule.
+- Assign new permissions to `super_admin` and explicitly decide which operational roles receive them. The current matrix lives in `IamRolePermissionSeeder`; update its tests whenever it changes.
+- New write workflows must use Form Requests, authorization, and validated data only.
+- Multi-record workflows such as admissions conversion, attendance generation, marks publication, payments, and stock movement must use transactions and locking where race conditions are possible.
+- File uploads are not implemented yet. When added, validate MIME type, extension, and size; use generated filenames; and define private/public visibility deliberately.
+- Keep migrations forward-only after they have run in a shared environment. Add new migrations for schema fixes.
+
+## Documentation Consistency
+
+- Update `README.md`, `docs/MVP_REVIEW.md`, and any affected contract/demo documentation whenever a surface, limitation, security control, or readiness claim changes.
+- Mobile notifications currently mean an announcement-backed API feed. They are not push notifications and do not have unread-state support.
+- The Flutter application, SSO behavior, payment gateway, controlled uploads, advanced reports/PDFs, and full production operations are not implemented in this repository.
+
 === foundation rules ===
 
 # Laravel Boost Guidelines

@@ -6,6 +6,7 @@ use App\Models\StaffProfile;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Number;
@@ -17,6 +18,16 @@ class IdentityPeopleOverview extends StatsOverviewWidget
     protected static ?int $sort = 10;
 
     protected ?string $pollingInterval = null;
+
+    public static function canView(): bool
+    {
+        $user = Filament::auth()->user();
+
+        return $user instanceof User
+            && $user->can('users.view')
+            && $user->can('students.view')
+            && $user->can('teachers.view');
+    }
 
     protected function getStats(): array
     {

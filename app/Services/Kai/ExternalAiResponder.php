@@ -2,6 +2,7 @@
 
 namespace App\Services\Kai;
 
+use App\Exceptions\KaiProviderException;
 use App\Models\User;
 use App\Services\Kai\Contracts\AiResponder;
 use Illuminate\Support\Arr;
@@ -46,6 +47,8 @@ class ExternalAiResponder implements AiResponder
                 timeout: (int) config('kai.provider.timeout', 30),
             );
         } catch (Throwable) {
+            report(new KaiProviderException($this->providerName(), $this->modelName()));
+
             return $this->fallbackResponder->respond($message, $context, $user);
         }
 

@@ -11,7 +11,7 @@
 
 Kyauksetu ERP is a Laravel university ERP and KAI backend MVP. The current system combines a Filament admin panel, applicant/student/teacher web portals, Sanctum mobile authentication, announcement-backed mobile notifications, and KAI context/chat APIs over a modular ERP data foundation.
 
-The project is currently **demo-ready MVP stage** with a verified backend API for the `kai-flutter` MVP integration. Seeded demo data supports the core admin, applicant, student, teacher, mobile API, and KAI journeys described in [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). The mobile API contract is available in [docs/MOBILE_API_CONTRACT.md](docs/MOBILE_API_CONTRACT.md), and a concise MVP review is available in [docs/MVP_REVIEW.md](docs/MVP_REVIEW.md).
+The project is currently a **demo-ready backend MVP**, not a beta or production-ready system. The mobile API contract for the planned `kai-flutter` integration is implemented, and seeded data supports the super-admin, applicant, student, teacher, mobile API, and KAI journeys in [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). Current blockers and the next required phase are tracked in [docs/MVP_REVIEW.md](docs/MVP_REVIEW.md).
 
 ## Table of Contents
 
@@ -24,6 +24,7 @@ The project is currently **demo-ready MVP stage** with a verified backend API fo
 - [Domain Model](#domain-model)
 - [Security and Audit](#security-and-audit)
 - [Known Limitations](#known-limitations)
+- [Pre-Beta Blockers](#pre-beta-blockers)
 - [Production Readiness Gap](#production-readiness-gap)
 - [Local Development](#local-development)
 - [Verification](#verification)
@@ -34,24 +35,24 @@ The project is currently **demo-ready MVP stage** with a verified backend API fo
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| ERP admin foundation | Implemented | Filament admin resources for ERP foundation and demo operations |
-| IAM / roles / permissions | Implemented | Spatie Permission roles, permissions, and policies |
+| ERP admin foundation | Hardened, verification pending | Panel entry uses an explicit back-office allow-list and widgets require module permissions |
+| IAM / roles / permissions | Implemented, verification pending | Least-privilege mappings exist for registrar, department admin, library, hostel, and finance roles |
 | Audit logging | Implemented | Spatie Activitylog on important managed records |
 | Academic structure | Implemented | Departments, years, semesters, programs, majors, sections, courses |
-| Admissions | Implemented | Batches, applicants, applications, decisions, conversion path |
+| Admissions | Hardened, verification pending | Intake dates and batch/program/major consistency are enforced |
 | Applicant portal | Implemented | Login, dashboard, applications, application detail/status |
 | Student portal | Implemented | Profile, enrollment, timetable, attendance, results, fees, library, hostel, announcements |
 | Teacher portal | Implemented | Profile, assignments, timetable, classes, announcements, attendance, marks |
-| Teacher attendance workflow | Implemented | Own-assignment attendance sessions and records |
+| Teacher attendance workflow | Hardened, verification pending | Record generation filters active profiles/enrollments by year, semester, and class section |
 | Teacher marks workflow | Implemented | Own-assignment assessment components and student marks |
-| Mobile auth API | Verified ready | Sanctum bearer-token login for supported student/teacher accounts with `mobile` token ability |
-| Mobile student data API | Verified ready | Student profile, enrollment, timetable, attendance, results, fees, library, hostel, and announcements |
+| Mobile auth API | Implemented | Sanctum bearer-token login for supported student/teacher accounts with `mobile` token ability |
+| Mobile student data API | Implemented | Student profile, enrollment, timetable, attendance, results, fees, library, hostel, and announcements |
 | Mobile notifications API | Implemented | Announcement-backed `/api/v1/notifications` feed for supported mobile roles |
-| KAI context/chat API | Verified ready | Scoped student/teacher context and local chat responder by default |
+| KAI context/chat API | Hardened, verification pending | Scoped context, local fallback, named throttling, and sanitized provider failure reporting |
 | Laravel AI SDK foundation | Implemented | External provider config foundation and smoke command |
 | KAI logging/admin review | Implemented | Chat sessions/messages available for admin review |
-| Demo data and flow | Implemented | Demo accounts and seeded story in `docs/DEMO_FLOW.md` |
-| Flutter app | Not implemented here | Laravel backend is ready for the `kai-flutter` MVP API integration |
+| Demo data and flow | Implemented | Seeded story supports the documented super-admin and portal journeys |
+| Flutter app | Not implemented here | Backend contract exists; the Flutter application is outside this repository |
 | Push notifications | Not implemented | Current mobile notifications are API feed items, not FCM/APNs push delivery |
 | SSO | Not implemented | Identity mapping foundation exists, login behavior is not enabled |
 
@@ -59,7 +60,7 @@ The project is currently **demo-ready MVP stage** with a verified backend API fo
 
 | Surface | Path / Endpoint | Purpose |
 | --- | --- | --- |
-| Filament Admin | `/admin` | ERP administration, review, and operational records |
+| Filament Admin | `/admin` | ERP administration and review; supported demo access is `super_admin` only |
 | Applicant Portal | `/applicant/login` | Applicant login and admission application status |
 | Student Portal | `/student/login` | Student profile, academic activity, fees, library, hostel, announcements |
 | Teacher Portal | `/teacher/login` | Teacher assignments, classes, attendance, marks, announcements |
@@ -100,12 +101,13 @@ The project is currently **demo-ready MVP stage** with a verified backend API fo
 ### IAM, Permissions, and Audit
 
 - `User` represents login identity.
-- Roles and permissions are managed with Spatie Permission.
-- Policies protect admin resources and portal workflows.
+- Roles, permissions, and policies are scaffolded with Spatie Permission.
+- `super_admin` receives the complete permission set. Registrar, department admin, librarian, hostel warden, and finance officer now receive explicit least-privilege module permissions; teacher, student, and applicant remain portal-only.
+- Filament panel entry is restricted to the explicit back-office allow-list, and dashboard widgets require their underlying module permissions.
 - Important managed models use Spatie Activitylog.
 - `user_identities` provides a foundation for future SSO mapping.
 
-Current roles include:
+Scaffolded role names include:
 
 - `super_admin`
 - `registrar`
@@ -115,6 +117,9 @@ Current roles include:
 - `librarian`
 - `hostel_warden`
 - `finance_officer`
+- `applicant`
+
+Except for `super_admin`, these role names must not be treated as complete back-office implementations until their permission assignments and authorization tests exist.
 
 ### Admissions and Applicant Portal
 
@@ -163,7 +168,7 @@ DemoPass123!
 | Role | Email | Journey |
 | --- | --- | --- |
 | Super admin | `demo.admin@kyauksetu.test` | Admin review across ERP modules |
-| Admission officer | `demo.admissions@kyauksetu.test` | Admissions/admin review using registrar role |
+| Admission officer | `demo.admissions@kyauksetu.test` | Admissions/admin journey using the registrar role; verification is pending a successful Sail test/demo pass |
 | Applicant | `demo.applicant@kyauksetu.test` | Applicant dashboard and accepted application |
 | Student | `demo.student@kyauksetu.test` | Student portal and KAI mobile/API context |
 | Teacher | `demo.teacher@kyauksetu.test` | Teacher portal, attendance, and marks |
@@ -251,16 +256,19 @@ erDiagram
 
 ## Security and Audit
 
-- Admin resources are protected through Filament, Laravel policies, and role/permission checks.
+- Filament panel access is limited to explicit back-office roles, resources use policies, and dashboard widgets require module permissions.
+- The seeder assigns explicit least-privilege permissions to registrar, department admin, librarian, hostel warden, and finance officer; portal-only roles receive no admin permissions.
 - Portal routes are scoped to the authenticated applicant, student, or teacher.
 - Mobile API routes require Sanctum bearer tokens with the `mobile` ability.
 - Mobile role middleware restricts student-only and student/teacher endpoints.
-- Teacher attendance and marks workflows enforce own-assignment / own-class access.
+- Teacher attendance and marks workflows enforce own-assignment / own-class access. Attendance generation now also filters by academic year, semester, class section, active enrollment, and active student profile.
 - Tests cover important cross-user protection paths.
 - KAI context is assembled from permission-safe user context.
 - KAI does not receive unrestricted SQL or database access.
 - External AI calls are opt-in; local deterministic responder is the default.
 - KAI logs are available for admin review while avoiding secrets and unrestricted raw context exposure.
+- Web login, registration, mobile login, and KAI chat use configurable named rate limits.
+- External KAI provider failures are reported through a sanitized exception containing only provider/model metadata before falling back locally.
 
 ## Known Limitations
 
@@ -272,6 +280,17 @@ erDiagram
 - No SSO login behavior yet.
 - No advanced reports/PDFs yet.
 - No full production deployment hardening yet.
+- Portal JavaScript is still scaffold-level, and the applicant/student/teacher layouts contain duplicated inline CSS that should be consolidated through Vite and reusable components.
+
+## Pre-Beta Blockers
+
+The five code-hardening tasks are implemented with focused regression tests and a Sail-based CI workflow. The remaining gate is verification:
+
+1. Start Docker/Sail and run Pint on the changed PHP files.
+2. Run the focused hardening tests and full PHPUnit suite in the current worktree.
+3. Confirm the CI workflow passes migrations, frontend build, formatting, tests, and Composer audit.
+4. Obtain stakeholder approval for the role-permission matrix and its global access boundaries.
+5. Re-run the documented browser/API demo, including the registrar journey.
 
 ## Production Readiness Gap
 
@@ -285,7 +304,7 @@ Before production rollout, the project still needs:
 - File storage strategy for uploaded/private documents.
 - Rate limiting review for auth, KAI, and high-risk endpoints.
 - Real data migration planning and reconciliation.
-- Stakeholder review of the final permission matrix.
+- Stakeholder approval of the implemented and tested permission matrix.
 
 ## Local Development
 
@@ -366,7 +385,7 @@ Check mobile API routes:
 vendor/bin/sail artisan route:list --path=api --except-vendor
 ```
 
-The current verified readiness baseline is 77 passing tests, 391 assertions, 16 `/api/v1` routes, and successful manual curl checks for login, authenticated profile data, announcements, notifications, KAI chat, invalid-token rejection, and student-only role blocking.
+The suite now contains 88 test methods. The last successfully documented baseline remains 77 passing tests and 391 assertions, so the expanded suite is not yet a current pass claim. During the 2026-07-10 hardening work, Docker Desktop could not be started from this environment and Sail verification remained unavailable.
 
 Audit Composer dependencies:
 
@@ -409,5 +428,8 @@ routes/
 - Prefer Artisan generators for new Laravel and Filament classes.
 - Keep user identity, institutional profiles, and academic history separate.
 - Add permissions and policies with each new admin-managed domain model.
+- Explicitly assign each permission to the intended operational roles and add authorization tests; creating a role name alone does not make the role operational.
+- Restrict Filament panel and widget access independently from resource policies.
 - Keep KAI context permission-safe and role-scoped.
 - Keep migrations forward-only once they have run in shared environments.
+- Keep readiness claims synchronized across `README.md`, `docs/MVP_REVIEW.md`, `docs/DEMO_FLOW.md`, and the mobile contract documentation.

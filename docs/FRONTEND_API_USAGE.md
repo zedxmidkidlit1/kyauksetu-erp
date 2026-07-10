@@ -6,6 +6,8 @@ This guide explains how the `kai-flutter` mobile app should consume API data fro
 
 It is written for Flutter developers and AI coding agents working in the Flutter project. Treat this as the frontend-facing companion to `docs/MOBILE_API_CONTRACT.md` in the Laravel repo.
 
+The Laravel endpoints are implemented as a demo-ready backend MVP. Do not treat this guide as production-readiness approval. Review `docs/MVP_REVIEW.md`, re-run the Laravel test suite in the current worktree, and close the documented security/data-integrity blockers before production integration sign-off.
+
 ## Backend Base URLs
 
 Use the environment-specific host as the Flutter `API_BASE_URL`:
@@ -436,5 +438,7 @@ Verify:
 - Notifications are announcement-backed API notifications, not FCM/APNs push notifications yet.
 - Notification unread counts are not currently exposed by the backend.
 - KAI uses the local deterministic fallback unless external provider env is configured.
+- KAI chat does not yet have an endpoint-specific production rate limit, and external-provider failures currently fall back locally without operational reporting.
 - Applicant/admin mobile flows are not supported yet.
 - Production still needs real HTTPS/domain/CORS/env values.
+- The last documented Laravel test baseline is historical and must be re-run through Sail before integration sign-off.

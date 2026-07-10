@@ -268,6 +268,113 @@ class IamRolePermissionSeeder extends Seeder
 
         Role::findByName('super_admin', 'web')->syncPermissions($permissions);
 
+        $rolePermissions = [
+            'registrar' => array_merge(
+                $this->permissionsFor(['users'], ['view', 'create', 'update']),
+                $this->permissionsFor([
+                    'departments',
+                    'academic_years',
+                    'semesters',
+                    'programs',
+                    'majors',
+                    'class_sections',
+                    'courses',
+                    'teachers',
+                    'announcements',
+                ], ['view']),
+                $this->permissionsFor(['students'], ['view', 'create', 'update']),
+                $this->permissionsFor([
+                    'student_enrollments',
+                    'student_status_histories',
+                    'admission_batches',
+                    'applicants',
+                    'admission_applications',
+                    'admission_documents',
+                    'admission_decisions',
+                ]),
+            ),
+            'department_admin' => array_merge(
+                $this->permissionsFor(['departments'], ['view', 'update']),
+                $this->permissionsFor(['students'], ['view']),
+                $this->permissionsFor(['teachers'], ['view', 'update']),
+                $this->permissionsFor([
+                    'academic_years',
+                    'semesters',
+                    'programs',
+                    'majors',
+                    'class_sections',
+                    'courses',
+                    'curriculums',
+                    'teaching_assignments',
+                    'timetables',
+                    'attendance_sessions',
+                    'attendance_records',
+                    'exam_terms',
+                    'exam_schedules',
+                    'assessment_components',
+                    'student_marks',
+                    'grade_scales',
+                    'grade_scale_rules',
+                    'student_course_results',
+                    'result_batches',
+                    'result_batch_items',
+                    'announcements',
+                    'announcement_audiences',
+                ]),
+            ),
+            'librarian' => array_merge(
+                $this->permissionsFor(['students'], ['view']),
+                $this->permissionsFor([
+                    'book_categories',
+                    'books',
+                    'book_copies',
+                    'library_loans',
+                ]),
+            ),
+            'hostel_warden' => array_merge(
+                $this->permissionsFor(['students'], ['view']),
+                $this->permissionsFor([
+                    'hostels',
+                    'hostel_rooms',
+                    'hostel_beds',
+                    'hostel_allocations',
+                ]),
+            ),
+            'finance_officer' => array_merge(
+                $this->permissionsFor(['students', 'academic_years', 'semesters'], ['view']),
+                $this->permissionsFor([
+                    'fee_types',
+                    'student_fees',
+                    'student_payments',
+                ]),
+            ),
+            'teacher' => [],
+            'student' => [],
+            'applicant' => [],
+        ];
+
+        foreach ($rolePermissions as $role => $assignedPermissions) {
+            Role::findByName($role, 'web')->syncPermissions(array_values(array_unique($assignedPermissions)));
+        }
+
         app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+
+    /**
+     * @param  array<int, string>  $resources
+     * @param  array<int, string>  $abilities
+     * @return array<int, string>
+     */
+    private function permissionsFor(array $resources, array $abilities = ['view', 'create', 'update', 'delete']): array
+    {
+        $permissions = [];
+
+        foreach ($resources as $resource) {
+            foreach ($abilities as $ability) {
+                $permissions[] = "{$resource}.{$ability}";
+            }
+        }
+
+        return $permissions;
     }
 }

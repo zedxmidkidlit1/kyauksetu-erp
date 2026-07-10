@@ -25,9 +25,18 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasActivity, HasApiTokens, HasFactory, HasRoles, Notifiable;
 
+    private const BACK_OFFICE_ROLES = [
+        'super_admin',
+        'registrar',
+        'department_admin',
+        'librarian',
+        'hostel_warden',
+        'finance_officer',
+    ];
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return ! $this->hasRole('applicant');
+        return $panel->getId() === 'admin' && $this->hasAnyRole(self::BACK_OFFICE_ROLES);
     }
 
     public function studentProfile(): HasOne

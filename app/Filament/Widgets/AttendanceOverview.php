@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\AttendanceSession;
+use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Number;
@@ -14,6 +16,13 @@ class AttendanceOverview extends StatsOverviewWidget
     protected static ?int $sort = 40;
 
     protected ?string $pollingInterval = null;
+
+    public static function canView(): bool
+    {
+        $user = Filament::auth()->user();
+
+        return $user instanceof User && $user->can('attendance_sessions.view');
+    }
 
     protected function getStats(): array
     {

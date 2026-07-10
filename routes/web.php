@@ -19,9 +19,13 @@ Route::prefix('applicant')
     ->name('applicant.')
     ->group(function (): void {
         Route::get('register', [AuthController::class, 'showRegister'])->name('register');
-        Route::post('register', [AuthController::class, 'register'])->name('register.store');
+        Route::post('register', [AuthController::class, 'register'])
+            ->middleware('throttle:registration')
+            ->name('register.store');
         Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('login', [AuthController::class, 'login'])->name('login.store');
+        Route::post('login', [AuthController::class, 'login'])
+            ->middleware('throttle:web-login')
+            ->name('login.store');
 
         Route::middleware('applicant')->group(function (): void {
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -38,7 +42,9 @@ Route::prefix('student')
     ->name('student.')
     ->group(function (): void {
         Route::get('login', [StudentAuthController::class, 'showLogin'])->name('login');
-        Route::post('login', [StudentAuthController::class, 'login'])->name('login.store');
+        Route::post('login', [StudentAuthController::class, 'login'])
+            ->middleware('throttle:web-login')
+            ->name('login.store');
 
         Route::middleware('student')->group(function (): void {
             Route::post('logout', [StudentAuthController::class, 'logout'])->name('logout');
@@ -59,7 +65,9 @@ Route::prefix('teacher')
     ->name('teacher.')
     ->group(function (): void {
         Route::get('login', [TeacherAuthController::class, 'showLogin'])->name('login');
-        Route::post('login', [TeacherAuthController::class, 'login'])->name('login.store');
+        Route::post('login', [TeacherAuthController::class, 'login'])
+            ->middleware('throttle:web-login')
+            ->name('login.store');
 
         Route::middleware('teacher')->group(function (): void {
             Route::post('logout', [TeacherAuthController::class, 'logout'])->name('logout');

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Bootstrap Composer dependencies
+        run: >-
+          docker run --rm
+          --user "$(id -u):$(id -g)"
+          --volume "$PWD:/var/www/html"
+          --workdir /var/www/html
+          --env COMPOSER_HOME=/tmp/composer
+          laravelsail/php85-composer:latest
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Configure application
+        run: cp .env.example .env
+
+      - name: Start Sail
+        run: vendor/bin/sail up -d
+
+      - name: Generate application key
+        run: vendor/bin/sail artisan key:generate --no-interaction
+
+      - name: Verify migrations
+        run: vendor/bin/sail artisan migrate --force --no-interaction
+
+      - name: Build frontend assets
+        run: |
+          vendor/bin/sail npm install --ignore-scripts --no-package-lock
+          vendor/bin/sail npm run build
+
+      - name: Format PHP
+        run: |
+          vendor/bin/sail bin pint --format agent
+          git diff --exit-code
+
+      - name: Run PHPUnit suite
+        run: vendor/bin/sail artisan test --compact
+
+      - name: Audit Composer dependencies
+        run: vendor/bin/sail composer audit
+
+      - name: Stop Sail
+        if: always()
+        run: vendor/bin/sail down

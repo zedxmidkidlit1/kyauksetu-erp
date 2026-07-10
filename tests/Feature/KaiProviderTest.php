@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\KaiProviderException;
 use App\Models\AcademicYear;
 use App\Models\ClassSection;
 use App\Models\Department;
@@ -14,8 +15,10 @@ use App\Services\Kai\Contracts\AiResponder;
 use App\Services\Kai\ExternalAiResponder;
 use App\Services\Kai\LocalAiResponder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
 use Laravel\Ai\AnonymousAgent;
 use Laravel\Sanctum\Sanctum;
+use RuntimeException;
 use Tests\TestCase;
 
 class KaiProviderTest extends TestCase
@@ -107,6 +110,40 @@ class KaiProviderTest extends TestCase
                 && $prompt->provider()->name() === 'openai'
                 && $prompt->model === 'kai-test-model';
         });
+    }
+
+    public function test_external_provider_failures_are_reported_without_raw_provider_details(): void
+    {
+        $user = User::factory()->make([
+            'name' => 'KAI Provider Student',
+        ]);
+
+        config([
+            'kai.responder' => 'external',
+            'kai.provider.enabled' => true,
+            'kai.provider.name' => 'openai',
+            'kai.provider.model' => 'kai-test-model',
+            'kai.provider.api_key' => 'fake-provider-key',
+        ]);
+
+        Exceptions::fake();
+        AnonymousAgent::fake(function (): never {
+            throw new RuntimeException('sensitive-provider-response');
+        });
+
+        $response = app(AiResponder::class)->respond('Show my fees', [
+            'unpaid_due_fees' => [
+                'count' => 1,
+                'total_payable_amount' => '5000.00',
+            ],
+        ], $user);
+
+        $this->assertSame('You have 1 unpaid or due fee item(s) totaling 5000.00.', $response['reply']);
+        $this->assertStringNotContainsString('sensitive-provider-response', json_encode($response, JSON_THROW_ON_ERROR));
+        Exceptions::assertReported(fn (KaiProviderException $exception): bool => $exception->context() === [
+            'provider' => 'openai',
+            'model' => 'kai-test-model',
+        ] && ! str_contains($exception->getMessage(), 'sensitive-provider-response'));
     }
 
     public function test_chat_endpoint_still_returns_safe_compact_json(): void

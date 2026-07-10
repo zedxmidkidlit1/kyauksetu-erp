@@ -2,6 +2,8 @@
 
 Use this guide for future foundation-only ERP modules. Keep each module small, admin-facing, and conventional: data model, admin CRUD, IAM permissions, audit logging, and targeted verification.
 
+The current repository is a demo-ready backend MVP. Before adding broad new modules, complete the security, IAM, data-integrity, throttling, and verification blockers in `docs/MVP_REVIEW.md`.
+
 ## Scope Rule
 
 Foundation modules should not grow into portals, integrations, notifications, analytics engines, exports, PDFs, payments, automation workflows, or background jobs unless the prompt explicitly asks for them.
@@ -13,6 +15,7 @@ Foundation modules should not grow into portals, integrations, notifications, an
 - Policies live in `app/Policies` and map directly to module permissions.
 - Filament resources live in `app/Filament/Resources/{PluralName}`.
 - Seed new permissions through `database/seeders/IamRolePermissionSeeder.php`.
+- Decide and document which existing operational roles receive each permission; do not add permission names without a role assignment decision.
 - Add relationships on both sides when useful for admin screens and future modules.
 
 Typical Filament resource shape:
@@ -47,6 +50,8 @@ Model conventions:
 - Add indexes for foreign keys, statuses, dates, and common admin filters.
 - Use basic check constraints for safe numeric rules, such as non-negative amounts.
 - Use PostgreSQL partial unique indexes where already established and clean, especially for active-only constraints such as one active hostel allocation per student or bed.
+- Enforce cross-field domain integrity in Form Requests or dedicated actions and add database constraints where the rule belongs in the schema.
+- Use transactions and row/atomic locks for multi-record workflows that can race, including conversions, attendance generation, publication, payments, and stock movements.
 
 Keep migrations readable. Prefer clear schema definitions plus small `DB::statement()` calls only when Laravel schema builder does not express the constraint cleanly.
 
@@ -74,7 +79,15 @@ Policy pattern:
 - `delete()` checks `{resource}.delete`.
 - Leave `restore()` and `forceDelete()` as `false` unless explicitly requested.
 
-After adding permissions, assign them to `super_admin` in `IamRolePermissionSeeder` using the existing seeder pattern. Re-run the IAM seeder only when permissions changed.
+After adding permissions:
+
+- Assign them to `super_admin`.
+- Explicitly assign them to each operational role that owns the workflow.
+- Leave unrelated roles without the permission.
+- Add PHPUnit tests for allowed and denied actions for every affected role.
+- Re-run the IAM seeder only when permissions changed.
+
+Creating a role name is not an implementation of that role. A role is operational only when its permission set, Filament access, and authorization tests exist.
 
 ## 4. Audit Logging
 
@@ -125,6 +138,9 @@ Select::make('book_id')
 - Add filters for status/category and important relationships.
 - Add relation managers or repeaters only when they simplify a natural parent-child workflow.
 - Keep resources CRUD-focused and admin-friendly. Do not add dashboards, charts, exports, or custom workflows unless requested.
+- Restrict Filament panel entry to an explicit back-office role allow-list.
+- Every dashboard widget must have an authorization-aware visibility rule; resource policies do not protect widget queries.
+- Custom actions must authorize the action itself, not rely only on button visibility.
 
 ## 6. Verification Rules
 
@@ -134,6 +150,7 @@ Run only the checks that match the change:
 - Re-run `IamRolePermissionSeeder` only when permissions changed.
 - Run Pint on dirty files after PHP edits.
 - Run compact tests for functional changes.
+- Add targeted authorization, validation, failure-path, and edge-case tests for every new write workflow.
 - Verify only targeted admin route paths for new Filament resources.
 - Use targeted Boost/schema checks only when useful.
 - Do not run full `route:list`.
@@ -189,7 +206,9 @@ Scope:
 - Add audit logging.
 - Add Filament resources under {Navigation Group}.
 - Add permissions and policies.
-- Assign new permissions to super_admin in IamRolePermissionSeeder.
+- Assign new permissions to super_admin and the explicitly approved operational roles in IamRolePermissionSeeder.
+- Add allowed/denied authorization tests for every affected role.
+- Add Form Request/domain validation for cross-field rules.
 - Add reasonable indexes and constraints.
 
 Verification:

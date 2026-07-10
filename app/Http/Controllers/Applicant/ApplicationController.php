@@ -11,7 +11,9 @@ use App\Models\Major;
 use App\Models\Program;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ApplicationController extends Controller
@@ -33,7 +35,7 @@ class ApplicationController extends Controller
     {
         return view('applicant.applications.create', [
             'batches' => AdmissionBatch::query()
-                ->where('status', 'open')
+                ->acceptingApplications()
                 ->with(['academicYear', 'program'])
                 ->orderBy('closes_at')
                 ->orderBy('name')
@@ -51,39 +53,48 @@ class ApplicationController extends Controller
 
     public function store(StoreAdmissionApplicationRequest $request): RedirectResponse
     {
-        $applicant = $this->currentApplicant($request);
         $data = $request->validated();
+        $applicantId = $this->currentApplicant($request)->getKey();
 
-        $batch = AdmissionBatch::query()
-            ->where('status', 'open')
-            ->findOrFail($data['admission_batch_id']);
+        $application = DB::transaction(function () use ($applicantId, $data): AdmissionApplication {
+            $applicant = Applicant::query()
+                ->lockForUpdate()
+                ->findOrFail($applicantId);
+            $batch = AdmissionBatch::query()
+                ->acceptingApplications()
+                ->lockForUpdate()
+                ->findOrFail($data['admission_batch_id']);
 
-        $programId = $data['program_id'] ?? $batch->program_id;
+            $major = isset($data['major_id'])
+                ? Major::query()->findOrFail($data['major_id'])
+                : null;
+            $programId = $batch->program_id ?? $data['program_id'] ?? $major?->program_id;
 
-        $alreadyApplied = AdmissionApplication::query()
-            ->whereBelongsTo($applicant)
-            ->whereBelongsTo($batch)
-            ->when($programId, fn ($query) => $query->where('program_id', $programId))
-            ->when(! $programId, fn ($query) => $query->whereNull('program_id'))
-            ->exists();
+            $alreadyApplied = AdmissionApplication::query()
+                ->whereBelongsTo($applicant)
+                ->whereBelongsTo($batch)
+                ->when($programId, fn ($query) => $query->where('program_id', $programId))
+                ->when(! $programId, fn ($query) => $query->whereNull('program_id'))
+                ->exists();
 
-        if ($alreadyApplied) {
-            return back()
-                ->withErrors(['admission_batch_id' => 'You already have an application for this batch and program.'])
-                ->withInput();
-        }
+            if ($alreadyApplied) {
+                throw ValidationException::withMessages([
+                    'admission_batch_id' => 'You already have an application for this batch and program.',
+                ]);
+            }
 
-        $application = AdmissionApplication::create([
-            'admission_batch_id' => $batch->id,
-            'applicant_id' => $applicant->id,
-            'academic_year_id' => $batch->academic_year_id,
-            'program_id' => $programId,
-            'major_id' => $data['major_id'] ?? null,
-            'application_no' => $this->newApplicationNumber(),
-            'applied_at' => now(),
-            'application_status' => 'submitted',
-            'remarks' => $data['remarks'] ?? null,
-        ]);
+            return AdmissionApplication::create([
+                'admission_batch_id' => $batch->id,
+                'applicant_id' => $applicant->id,
+                'academic_year_id' => $batch->academic_year_id,
+                'program_id' => $programId,
+                'major_id' => $data['major_id'] ?? null,
+                'application_no' => $this->newApplicationNumber(),
+                'applied_at' => now(),
+                'application_status' => 'submitted',
+                'remarks' => $data['remarks'] ?? null,
+            ]);
+        }, attempts: 3);
 
         return redirect()
             ->route('applicant.applications.status', $application)
