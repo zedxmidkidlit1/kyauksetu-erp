@@ -4,9 +4,15 @@
 
 Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a beta or production-ready system. Core portal and API journeys are implemented, while the current phase is establishing a trustworthy verification baseline, confirming authorization boundaries, reconciling readiness documentation, and validating the supported demo before further feature expansion.
 
+## Current Development Mode
+
+- Prioritize core feature completion.
+- Use focused tests during implementation.
+- Defer full-suite and CI hardening until the next stabilization milestone.
+
 ## Current Phase: Verification and Hardening
 
-- [ ] Establish a passing full local test baseline in the current worktree.
+- [x] Establish a passing full local test baseline in the current worktree: 90 tests and 468 assertions.
 - [ ] Confirm a green CI run for migrations, frontend build, formatting, tests, and dependency audit.
 - [ ] Reconcile PHP version, test counts, implemented hardening, and readiness claims across project documentation.
 - [ ] Obtain stakeholder approval for the operational role-permission matrix and global access boundaries.
@@ -58,6 +64,7 @@ Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a 
 ## Next Priorities
 
 1. **Run Pint, focused tests, and full suite**
+   - Status: complete — Pint passed without changes; 32 focused tests passed with 140 assertions; the full suite passed with 90 tests and 468 assertions.
    - Acceptance criteria: Pint completes without an uncommitted formatting diff; focused hardening tests pass; the complete PHPUnit suite passes in the current worktree; the resulting test and assertion totals are recorded accurately.
    - Relevant files: `README.md`, `tests/Feature/SecurityHardeningTest.php`, `tests/Feature/ApplicantPortalTest.php`, `tests/Feature/TeacherAttendanceWorkflowTest.php`, `tests/Feature/KaiChatTest.php`, `tests/Feature/KaiProviderTest.php`.
    - Dependencies/blockers: Docker/Sail must be available; PostgreSQL and required services must become healthy.
@@ -94,7 +101,7 @@ Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a 
 
 ## Blockers / Risks
 
-- The expanded suite has no documented passing run in the current worktree; the last documented success is 77 tests and 391 assertions.
+- The current local baseline passes with 90 tests and 468 assertions, but CI and project documentation do not yet reflect that verified result.
 - Current test-method counts and readiness claims differ between repository documentation and current test files.
 - CI contains the required verification stages, but repository evidence does not yet establish a successful run.
 - `README.md` advertises PHP 8.5 while the CI Composer setup currently uses PHP 8.4.
