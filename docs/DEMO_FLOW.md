@@ -6,7 +6,7 @@ Run the demo data seeder in a non-production environment:
 vendor/bin/sail artisan db:seed --class=DemoDataSeeder
 ```
 
-This is a demo-ready MVP flow. Until the Filament access and role-permission blockers in `docs/MVP_REVIEW.md` are fixed, use only the `super_admin` account for `/admin`. Do not present the seeded registrar account as a working back-office role.
+This is a demo-ready MVP flow. Filament access controls and the operational role mappings are implemented and locally verified, but use only the `super_admin` account for the supported admin demo until stakeholders approve the role boundaries and the registrar journey passes manual verification.
 
 ## Demo Credentials
 
@@ -82,4 +82,4 @@ The `/notifications` endpoint is also available to the demo student and teacher.
 
 ## Verification Note
 
-The last documented automated baseline is 77 tests and 391 assertions. Re-run the suite in the current worktree before presenting it as passing; the 2026-07-10 review could not run the suite because Docker/Podman was stopped.
+The current Sail baseline passes with 90 tests and 468 assertions. The focused hardening selection passes with 32 tests and 140 assertions, and Pint completes without changes. Manual verification of every documented role and API journey remains required before presenting the complete demo as verified.

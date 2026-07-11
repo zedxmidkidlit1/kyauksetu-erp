@@ -14,7 +14,7 @@ Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a 
 
 - [x] Establish a passing full local test baseline in the current worktree: 90 tests and 468 assertions.
 - [ ] Confirm a green CI run for migrations, frontend build, formatting, tests, and dependency audit.
-- [ ] Reconcile PHP version, test counts, implemented hardening, and readiness claims across project documentation.
+- [x] Reconcile PHP version, test counts, implemented hardening, and readiness claims across project documentation.
 - [ ] Obtain stakeholder approval for the operational role-permission matrix and global access boundaries.
 - [ ] Manually verify the documented super-admin, registrar, applicant, student, teacher, mobile, and KAI demo flows.
 
@@ -75,6 +75,7 @@ Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a 
    - Dependencies/blockers: current workflow changes must be present on GitHub; required container images and package registries must be available.
 
 3. **Reconcile PHP version, test counts, and readiness docs**
+   - Status: complete — documentation now records the PHP 8.4.1+ requirement, current PHP 8.5 runtime, verified 90-test baseline, and implemented hardening while retaining the demo-ready MVP classification.
    - Acceptance criteria: runtime/version claims agree with CI; test totals match the verified run; implemented hardening is no longer described as unfinished; all readiness claims consistently retain the demo-ready MVP status until gates pass.
    - Relevant files: `README.md`, `docs/MVP_REVIEW.md`, `docs/DEMO_FLOW.md`, `docs/MOBILE_API_CONTRACT.md`, `.github/workflows/ci.yml`.
    - Dependencies/blockers: requires results from priorities 1 and 2; readiness must not be inferred without those results.
@@ -101,10 +102,8 @@ Kyauksetu ERP is a demo-ready Laravel university ERP and KAI backend MVP, not a 
 
 ## Blockers / Risks
 
-- The current local baseline passes with 90 tests and 468 assertions, but CI and project documentation do not yet reflect that verified result.
-- Current test-method counts and readiness claims differ between repository documentation and current test files.
+- The current local baseline passes with 90 tests and 468 assertions; CI has not been verified.
 - CI contains the required verification stages, but repository evidence does not yet establish a successful run.
-- `README.md` advertises PHP 8.5 while the CI Composer setup currently uses PHP 8.4.
 - `docs/MVP_REVIEW.md` and `docs/DEMO_FLOW.md` retain stale descriptions of some hardening work that recent code, tests, and history show as implemented but unverified.
 - Operational role boundaries still require stakeholder approval and manual verification.
 - Production storage, payment reconciliation, monitoring, backups, rollback, and secret-management processes are not established.

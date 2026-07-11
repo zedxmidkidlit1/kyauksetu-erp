@@ -1,7 +1,7 @@
 # Kyauksetu ERP
 
 ![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.4.1%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![Filament](https://img.shields.io/badge/Filament-5.x-F59E0B?style=for-the-badge&logo=laravel&logoColor=white)
 ![Livewire](https://img.shields.io/badge/Livewire-4.x-4E56A6?style=for-the-badge&logo=livewire&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Ready-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -35,20 +35,20 @@ The project is currently a **demo-ready backend MVP**, not a beta or production-
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| ERP admin foundation | Hardened, verification pending | Panel entry uses an explicit back-office allow-list and widgets require module permissions |
-| IAM / roles / permissions | Implemented, verification pending | Least-privilege mappings exist for registrar, department admin, library, hostel, and finance roles |
+| ERP admin foundation | Hardened and locally verified | Panel entry uses an explicit back-office allow-list and widgets require module permissions |
+| IAM / roles / permissions | Implemented and locally verified | Least-privilege mappings exist for registrar, department admin, library, hostel, and finance roles; stakeholder approval remains pending |
 | Audit logging | Implemented | Spatie Activitylog on important managed records |
 | Academic structure | Implemented | Departments, years, semesters, programs, majors, sections, courses |
-| Admissions | Hardened, verification pending | Intake dates and batch/program/major consistency are enforced |
+| Admissions | Hardened and locally verified | Intake dates and batch/program/major consistency are enforced |
 | Applicant portal | Implemented | Login, dashboard, applications, application detail/status |
 | Student portal | Implemented | Profile, enrollment, timetable, attendance, results, fees, library, hostel, announcements |
 | Teacher portal | Implemented | Profile, assignments, timetable, classes, announcements, attendance, marks |
-| Teacher attendance workflow | Hardened, verification pending | Record generation filters active profiles/enrollments by year, semester, and class section |
+| Teacher attendance workflow | Hardened and locally verified | Record generation filters active profiles/enrollments by year, semester, and class section |
 | Teacher marks workflow | Implemented | Own-assignment assessment components and student marks |
 | Mobile auth API | Implemented | Sanctum bearer-token login for supported student/teacher accounts with `mobile` token ability |
 | Mobile student data API | Implemented | Student profile, enrollment, timetable, attendance, results, fees, library, hostel, and announcements |
 | Mobile notifications API | Implemented | Announcement-backed `/api/v1/notifications` feed for supported mobile roles |
-| KAI context/chat API | Hardened, verification pending | Scoped context, local fallback, named throttling, and sanitized provider failure reporting |
+| KAI context/chat API | Hardened and locally verified | Scoped context, local fallback, named throttling, and sanitized provider failure reporting |
 | Laravel AI SDK foundation | Implemented | External provider config foundation and smoke command |
 | KAI logging/admin review | Implemented | Chat sessions/messages available for admin review |
 | Demo data and flow | Implemented | Seeded story supports the documented super-admin and portal journeys |
@@ -74,7 +74,7 @@ The project is currently a **demo-ready backend MVP**, not a beta or production-
 
 | Layer | Technology |
 | --- | --- |
-| Runtime | PHP 8.5 |
+| Runtime | PHP 8.4.1+ (PHP 8.5 current project runtime) |
 | Framework | Laravel 13 |
 | Admin UI | Filament 5 |
 | Reactive layer | Livewire 4 |
@@ -284,13 +284,11 @@ erDiagram
 
 ## Pre-Beta Blockers
 
-The five code-hardening tasks are implemented with focused regression tests and a Sail-based CI workflow. The remaining gate is verification:
+The five code-hardening tasks are implemented, and the focused and full local verification baselines pass. The remaining gates are:
 
-1. Start Docker/Sail and run Pint on the changed PHP files.
-2. Run the focused hardening tests and full PHPUnit suite in the current worktree.
-3. Confirm the CI workflow passes migrations, frontend build, formatting, tests, and Composer audit.
-4. Obtain stakeholder approval for the role-permission matrix and its global access boundaries.
-5. Re-run the documented browser/API demo, including the registrar journey.
+1. Confirm the CI workflow passes migrations, frontend build, formatting, tests, and Composer audit.
+2. Obtain stakeholder approval for the role-permission matrix and its global access boundaries.
+3. Re-run the documented browser/API demo, including the registrar journey.
 
 ## Production Readiness Gap
 
@@ -385,7 +383,7 @@ Check mobile API routes:
 vendor/bin/sail artisan route:list --path=api --except-vendor
 ```
 
-The suite now contains 88 test methods. The last successfully documented baseline remains 77 passing tests and 391 assertions, so the expanded suite is not yet a current pass claim. During the 2026-07-10 hardening work, Docker Desktop could not be started from this environment and Sail verification remained unavailable.
+The current Sail baseline passes with 90 tests and 468 assertions. The focused hardening selection passes with 32 tests and 140 assertions, and Pint completes without changes. These results describe the verified local worktree; CI remains a separate verification gate.
 
 Audit Composer dependencies:
 

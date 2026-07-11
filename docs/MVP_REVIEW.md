@@ -4,7 +4,7 @@
 
 Kyauksetu ERP is a **demo-ready Laravel university ERP and KAI backend MVP**. It is beyond a prototype, but it is not beta or production-ready.
 
-The repository has a broad ERP data model, Filament CRUD foundation, applicant/student/teacher portals, Sanctum mobile APIs, announcement-backed notification feeds, KAI context/chat behavior, audit logging, and seeded demo data. Before feature expansion, the project must close critical access-control, role-permission, data-integrity, rate-limiting, and verification gaps.
+The repository has a broad ERP data model, Filament CRUD foundation, applicant/student/teacher portals, Sanctum mobile APIs, announcement-backed notification feeds, KAI context/chat behavior, audit logging, and seeded demo data. The first hardening implementation, local automated verification, and readiness-document reconciliation are complete. Before feature expansion, the project still needs stakeholder approval of global role boundaries, a successful CI run, and a manual pass through the supported demo.
 
 ## Application Surfaces
 
@@ -32,50 +32,31 @@ The repository has a broad ERP data model, Filament CRUD foundation, applicant/s
 
 ## Partially Implemented or Foundation-Only
 
-- **IAM:** role names, permissions, and policies exist, but only `super_admin` receives the full permission set. Registrar, department admin, librarian, hostel, finance, and other operational role mappings remain unfinished.
-- **Admin security:** resource policies exist, but Filament panel entry currently allows every non-applicant user and dashboard widgets do not have explicit visibility authorization.
-- **Admissions:** the workflow validates that IDs exist but does not yet enforce batch open/close dates, fixed batch/program selection, or major/program consistency.
-- **Attendance:** own-assignment authorization exists, but record generation is scoped only by class section and can include historical or otherwise ineligible enrollments.
+- **IAM:** least-privilege mappings and authorization tests exist for operational roles, but the intended global boundaries still require stakeholder approval.
+- **Admin security:** Filament panel entry uses an explicit back-office allow-list, and dashboard widgets use authorization-aware visibility rules.
+- **Admissions:** intake dates and batch/program/major consistency are enforced with focused regression coverage.
+- **Attendance:** record generation filters eligible active profiles and enrollments by academic year, semester, and class section.
 - **Notifications:** the mobile endpoint is an announcement-backed feed only. There is no push delivery or unread state.
 - **Documents:** document records contain file paths, but there is no controlled upload, validation, storage-visibility, retention, or malware-scanning workflow.
 - **Finance:** fee and payment records exist, but there is no payment gateway or production reconciliation workflow.
-- **KAI external provider:** external calls are opt-in and silently fall back to the local responder on provider errors; production reporting and rate limiting are still required.
+- **KAI external provider:** external calls are opt-in, named throttling and sanitized provider failure reporting are implemented, and production monitoring, credential governance, and approved live smoke verification remain pending.
 - **Frontend:** portal views work, but the JavaScript entry point is scaffold-level and the three portal layouts duplicate large inline CSS blocks.
 - **Deployment:** Railway staging configuration exists, but production backups, monitoring, rollback, secret governance, and worker supervision are not established.
 
-## Critical Blockers Before the Next Phase
+## Remaining Gates Before the Next Phase
 
-1. **Lock down Filament access**
-   - Allow only explicit administrative/back-office roles into the panel.
-   - Add authorization-aware visibility to every dashboard widget.
-   - Remove or environment-gate the default `test@example.com` user and predictable factory password.
-
-2. **Complete the role-permission matrix**
-   - Define the permissions for registrar, department admin, librarian, hostel warden, finance officer, and any other back-office roles.
-   - Add tests proving allowed and denied actions for each role.
-
-3. **Correct domain integrity**
-   - Enforce admissions dates and batch/program/major relationships.
-   - Scope attendance generation by academic year, semester, class section, enrollment status, and eligibility.
-   - Use forward-only migrations for any new database constraints because existing migrations may have run in shared environments.
-
-4. **Harden exposed endpoints and integrations**
-   - Rate-limit applicant/student/teacher web login and KAI chat routes.
-   - Add external AI provider error reporting without exposing prompts, context, credentials, or raw provider errors.
-   - Set production-specific HTTPS, CORS, token-expiration, and secret-management values.
-
-5. **Restore a trustworthy verification baseline**
-   - Start Sail and run the full PHPUnit suite in the current worktree.
-   - Add coverage for Filament panel access, widget visibility, policies, role matrices, admissions consistency, attendance eligibility, rate limiting, and important database constraints.
-   - Add CI with tests, frontend build, Pint, and dependency audits.
+1. Confirm the existing CI workflow passes migrations, frontend build, formatting, tests, and dependency audit.
+2. Obtain stakeholder approval for the operational role-permission matrix and global access boundaries.
+3. Manually verify the documented super-admin, registrar, applicant, student, teacher, mobile, and KAI demo journeys.
+4. Retain production-specific HTTPS, CORS, token expiration, monitoring, backup, rollback, and secret-governance work as production-readiness requirements.
 
 ## Testing Status
 
-- The suite contains 77 PHPUnit test methods, mostly feature tests.
+- The current Sail baseline passes with 90 tests and 468 assertions.
+- The focused hardening selection passes with 32 tests and 140 assertions, and Pint completes without changes.
 - Coverage is strongest for portal/API authentication, cross-user data isolation, mobile token abilities, KAI context safety, applicant conversion, and teacher attendance/marks workflows.
-- Admin resource, widget, policy, role-matrix, and database-integrity coverage is sparse relative to the size of the ERP model.
-- The last documented baseline is 77 passing tests and 391 assertions.
-- That baseline is not currently verified. During the 2026-07-10 review, `vendor/bin/sail artisan test --compact --do-not-cache-result` could not start because Docker/Podman was not running.
+- Focused coverage now includes panel and widget access, policies, role mappings, admissions consistency, attendance eligibility, rate limiting, and KAI provider failure handling.
+- The passing totals describe the verified local worktree; CI and the complete manual demo remain separate gates.
 
 ## Supported Demo
 
